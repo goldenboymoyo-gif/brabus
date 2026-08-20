@@ -25,20 +25,17 @@ export default function Particles() {
   const starMat = useRef<THREE.PointsMaterial>(null);
 
   // ---- Starfield ----
-  const [starPositions, starSizes] = useMemo(() => {
+  const starPositions = useMemo(() => {
     const pos = new Float32Array(STAR_COUNT * 3);
-    const sizes = new Float32Array(STAR_COUNT);
     for (let i = 0; i < STAR_COUNT; i++) {
-      // Distribute in a large sphere around the scene
       const theta = Math.random() * Math.PI * 2;
       const phi = Math.acos(2 * Math.random() - 1);
       const r = 15 + Math.random() * 30;
       pos[i * 3 + 0] = r * Math.sin(phi) * Math.cos(theta);
-      pos[i * 3 + 1] = Math.abs(r * Math.cos(phi)) * 0.6 + 2; // bias upward
+      pos[i * 3 + 1] = Math.abs(r * Math.cos(phi)) * 0.6 + 2;
       pos[i * 3 + 2] = r * Math.sin(phi) * Math.sin(theta);
-      sizes[i] = 0.02 + Math.random() * 0.06;
     }
-    return [pos, sizes];
+    return pos;
   }, []);
 
   // ---- Dust / speed streaks ----
@@ -57,25 +54,18 @@ export default function Particles() {
   useFrame((_, delta) => {
     const s = choreo.current;
     const powerAmt = localProgress(scrollState.progress, "power");
+    const time = Date.now() * 0.0001;
 
-    // ---- Animate stars — slow drift + twinkle ----
+    // ---- Animate stars — slow drift ----
     if (starPoints.current) {
       const geo = starPoints.current.geometry as THREE.BufferGeometry;
       const arr = geo.attributes.position.array as Float32Array;
-      const sz = geo.attributes.size.array as Float32Array;
-      const time = Date.now() * 0.0001;
-
       for (let i = 0; i < STAR_COUNT; i++) {
         const idx = i * 3;
-        // Very slow drift
         arr[idx] += Math.sin(time + i * 0.3) * 0.0003;
         arr[idx + 1] += Math.cos(time + i * 0.2) * 0.0002;
-        // Twinkle — oscillate size
-        const twinkle = 0.5 + 0.5 * Math.sin(time * 8 + i * 1.7);
-        sz[i] = (0.02 + Math.random() * 0.001) * (0.6 + twinkle * 0.4);
       }
       geo.attributes.position.needsUpdate = true;
-      geo.attributes.size.needsUpdate = true;
     }
 
     // ---- Animate dust ----
@@ -83,7 +73,6 @@ export default function Particles() {
       const geo = dustPoints.current.geometry as THREE.BufferGeometry;
       const arr = geo.attributes.position.array as Float32Array;
       const speed = 0.4 + powerAmt * 12;
-
       for (let i = 0; i < DUST_COUNT; i++) {
         const idx = i * 3;
         arr[idx + 2] += delta * speed * (0.4 + dustSeeds[i]);
@@ -96,7 +85,7 @@ export default function Particles() {
       geo.attributes.position.needsUpdate = true;
     }
 
-    // Dust material — fade in/out with scene
+    // Dust material — fade with scene
     if (dustMat.current) {
       dustMat.current.opacity = THREE.MathUtils.lerp(
         dustMat.current.opacity,
@@ -113,6 +102,8 @@ export default function Particles() {
         0.35 + s.fog * 0.25 - s.interiorFocus * 0.2,
         0.05
       );
+      // Twinkle via size oscillation
+      starMat.current.size = 0.035 + Math.sin(time * 6) * 0.008;
     }
   });
 
@@ -126,12 +117,6 @@ export default function Particles() {
             count={STAR_COUNT}
             array={starPositions}
             itemSize={3}
-          />
-          <bufferAttribute
-            attach="attributes-size"
-            count={STAR_COUNT}
-            array={starSizes}
-            itemSize={1}
           />
         </bufferGeometry>
         <pointsMaterial
