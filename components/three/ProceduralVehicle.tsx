@@ -15,7 +15,7 @@ import { scrollState } from "@/lib/three/scrollState";
 // ============================================================================
 
 /* ------------------------------------------------------------------ */
-/*  WHEEL — multi-spoke Brabus Monoblock style                        */
+/*  WHEEL — detailed Brabus Monoblock with tread, Y-spokes, drilled   */
 /* ------------------------------------------------------------------ */
 function Wheel({
   position,
@@ -36,70 +36,167 @@ function Wheel({
   const spokeCount = 10;
   return (
     <group position={position}>
-      {/* Tire — slightly rounded profile via two offset cylinders */}
+      {/* Tire — main tread surface */}
       <mesh rotation={[0, 0, Math.PI / 2]} castShadow material={materials.tire}>
-        <cylinderGeometry args={[radius, radius, 0.32, 32]} />
+        <cylinderGeometry args={[radius, radius, 0.32, 48]} />
       </mesh>
-      {/* Tire sidewall bulge — outer ring */}
+      {/* Tire inner barrel */}
       <mesh rotation={[0, 0, Math.PI / 2]} material={materials.tire}>
-        <torusGeometry args={[radius, 0.045, 8, 32]} />
+        <cylinderGeometry args={[radius * 0.78, radius * 0.78, 0.3, 32]} />
       </mesh>
+      {/* Tread circumferential grooves */}
+      {[-0.1, -0.035, 0.035, 0.1].map((x, gi) => (
+        <mesh key={`groove-${gi}`} position={[x, 0, 0]} rotation={[0, 0, Math.PI / 2]} material={materials.tire}>
+          <torusGeometry args={[radius - 0.003, 0.008, 6, 48]} />
+        </mesh>
+      ))}
+      {/* Tire sidewall bulge — outer */}
+      <mesh rotation={[0, 0, Math.PI / 2]} position={[0.16, 0, 0]} material={materials.tire}>
+        <torusGeometry args={[radius * 0.9, 0.04, 10, 48]} />
+      </mesh>
+      {/* Tire sidewall bulge — inner */}
+      <mesh rotation={[0, 0, Math.PI / 2]} position={[-0.16, 0, 0]} material={materials.tire}>
+        <torusGeometry args={[radius * 0.9, 0.04, 10, 48]} />
+      </mesh>
+      {/* Shoulder edges */}
+      {[0.16, -0.16].map((x, si) => (
+        <mesh key={`shoulder-${si}`} position={[x, 0, 0]} rotation={[0, 0, Math.PI / 2]} material={materials.tire}>
+          <torusGeometry args={[radius * 0.96, 0.02, 8, 48]} />
+        </mesh>
+      ))}
 
       {/* Rim barrel */}
       <mesh rotation={[0, 0, Math.PI / 2]} material={materials.rim}>
-        <cylinderGeometry args={[radius * 0.72, radius * 0.72, 0.34, 32]} />
+        <cylinderGeometry args={[radius * 0.72, radius * 0.72, 0.34, 48]} />
       </mesh>
-
-      {/* Rim lip — outer ring */}
+      {/* Rim lip — outer polished ring */}
       <mesh rotation={[0, 0, Math.PI / 2]} position={[0.17, 0, 0]} material={materials.rim}>
-        <torusGeometry args={[radius * 0.72, 0.018, 8, 32]} />
+        <torusGeometry args={[radius * 0.72, 0.02, 10, 48]} />
+      </mesh>
+      {/* Rim lip step */}
+      <mesh rotation={[0, 0, Math.PI / 2]} position={[0.155, 0, 0]} material={materials.rim}>
+        <torusGeometry args={[radius * 0.69, 0.006, 8, 32]} />
+      </mesh>
+      {/* Inner lip */}
+      <mesh rotation={[0, 0, Math.PI / 2]} position={[-0.17, 0, 0]} material={materials.rim}>
+        <torusGeometry args={[radius * 0.72, 0.014, 8, 32]} />
       </mesh>
 
-      {/* Spokes — 10 thin bars radiating from center */}
+      {/* Y-split spokes — two arms per spoke */}
       {Array.from({ length: spokeCount }).map((_, i) => {
         const angle = (i * Math.PI * 2) / spokeCount;
         const cos = Math.cos(angle);
         const sin = Math.sin(angle);
-        const spokeLen = radius * 0.58;
+        const spokeLen = radius * 0.46;
         return (
-          <mesh
-            key={`spoke-${i}`}
-            position={[0.17, sin * radius * 0.36, cos * radius * 0.36]}
-            rotation={[angle, 0, 0]}
-            material={materials.spoke}
-          >
-            <boxGeometry args={[0.04, spokeLen, 0.055]} />
-          </mesh>
+          <group key={`spoke-${i}`}>
+            {/* Upper arm */}
+            <mesh
+              position={[0.17, sin * radius * 0.42, cos * radius * 0.42]}
+              rotation={[angle, 0, 0]}
+              material={materials.spoke}
+            >
+              <boxGeometry args={[0.03, spokeLen, 0.04]} />
+            </mesh>
+            {/* Lower arm */}
+            <mesh
+              position={[0.17, -sin * radius * 0.42, -cos * radius * 0.42]}
+              rotation={[angle + Math.PI, 0, 0]}
+              material={materials.spoke}
+            >
+              <boxGeometry args={[0.03, spokeLen, 0.04]} />
+            </mesh>
+            {/* Hub widening */}
+            <mesh
+              position={[0.1, sin * radius * 0.16, cos * radius * 0.16]}
+              rotation={[angle, 0, 0]}
+              material={materials.spoke}
+            >
+              <boxGeometry args={[0.035, radius * 0.24, 0.048]} />
+            </mesh>
+          </group>
         );
       })}
+      {/* Inner structural ring */}
+      <mesh rotation={[0, 0, Math.PI / 2]} material={materials.rim}>
+        <torusGeometry args={[radius * 0.2, 0.01, 8, 24]} />
+      </mesh>
+      {/* Outer structural ring */}
+      <mesh rotation={[0, 0, Math.PI / 2]} position={[0.17, 0, 0]} material={materials.rim}>
+        <torusGeometry args={[radius * 0.64, 0.008, 8, 32]} />
+      </mesh>
 
       {/* Center hub */}
       <mesh rotation={[0, 0, Math.PI / 2]} position={[0.18, 0, 0]} material={materials.cap}>
         <cylinderGeometry args={[radius * 0.14, radius * 0.14, 0.06, 20]} />
       </mesh>
-
-      {/* Center cap emblem — slight dome */}
+      {/* Center cap emblem — dome */}
       <mesh rotation={[0, 0, Math.PI / 2]} position={[0.21, 0, 0]} material={materials.rim}>
         <cylinderGeometry args={[radius * 0.09, radius * 0.11, 0.02, 16]} />
       </mesh>
+      <mesh rotation={[0, 0, Math.PI / 2]} position={[0.22, 0, 0]} material={materials.rim}>
+        <sphereGeometry args={[radius * 0.07, 12, 6, 0, Math.PI * 2, 0, Math.PI / 2]} />
+      </mesh>
+      {/* Lug bolts */}
+      {Array.from({ length: 5 }).map((_, i) => {
+        const a = (i * Math.PI * 2) / 5;
+        return (
+          <mesh
+            key={`bolt-${i}`}
+            rotation={[0, 0, Math.PI / 2]}
+            position={[0.19, Math.cos(a) * radius * 0.09, Math.sin(a) * radius * 0.09]}
+            material={materials.cap}
+          >
+            <cylinderGeometry args={[0.01, 0.012, 0.025, 6]} />
+          </mesh>
+        );
+      })}
 
-      {/* Brake disc — visible behind spokes */}
+      {/* Brake disc — cross-drilled */}
       <mesh rotation={[0, 0, Math.PI / 2]} position={[0.04, 0, 0]} material={materials.disc}>
-        <cylinderGeometry args={[radius * 0.56, radius * 0.56, 0.018, 32]} />
+        <cylinderGeometry args={[radius * 0.56, radius * 0.56, 0.015, 48]} />
+      </mesh>
+      {/* Drill holes */}
+      {Array.from({ length: 20 }).map((_, i) => {
+        const a = (i * Math.PI * 2) / 20 + (i % 2) * 0.08;
+        const r = radius * 0.4 + (i % 3) * radius * 0.05;
+        return (
+          <mesh
+            key={`drill-${i}`}
+            rotation={[0, 0, Math.PI / 2]}
+            position={[0.04, Math.cos(a) * r, Math.sin(a) * r]}
+            material={materials.disc}
+          >
+            <cylinderGeometry args={[0.008, 0.008, 0.016, 6]} />
+          </mesh>
+        );
+      })}
+      {/* Disc hat */}
+      <mesh rotation={[0, 0, Math.PI / 2]} position={[0.055, 0, 0]} material={materials.disc}>
+        <cylinderGeometry args={[radius * 0.16, radius * 0.2, 0.02, 16]} />
       </mesh>
 
-      {/* Brake disc ventilation holes ring */}
-      <mesh rotation={[0, 0, Math.PI / 2]} position={[0.04, 0, 0]} material={materials.disc}>
-        <torusGeometry args={[radius * 0.42, 0.012, 6, 24]} />
-      </mesh>
-
-      {/* Caliper — Brabus red */}
+      {/* Caliper — multi-piston performance */}
       <mesh position={[0.1, radius * 0.46, 0]} material={materials.caliper}>
-        <boxGeometry args={[0.18, 0.2, 0.14]} />
+        <boxGeometry args={[0.18, 0.22, 0.2]} />
       </mesh>
-      {/* Caliper bridge */}
-      <mesh position={[0.1, radius * 0.46, 0]} material={materials.caliper}>
-        <boxGeometry args={[0.2, 0.06, 0.16]} />
+      {/* Caliper bridge — top */}
+      <mesh position={[0.1, radius * 0.56, 0]} material={materials.caliper}>
+        <boxGeometry args={[0.2, 0.04, 0.22]} />
+      </mesh>
+      {/* Caliper bridge — bottom */}
+      <mesh position={[0.1, radius * 0.36, 0]} material={materials.caliper}>
+        <boxGeometry args={[0.2, 0.03, 0.22]} />
+      </mesh>
+      {/* Pistons */}
+      {[-0.05, 0, 0.05].map((z) => (
+        <mesh key={`piston-${z}`} position={[0.12, radius * 0.46, z]} material={materials.rim}>
+          <cylinderGeometry args={[0.02, 0.02, 0.035, 10]} />
+        </mesh>
+      ))}
+      {/* Caliper face */}
+      <mesh position={[0.2, radius * 0.46, 0]} material={materials.caliper}>
+        <boxGeometry args={[0.008, 0.16, 0.16]} />
       </mesh>
     </group>
   );

@@ -8,10 +8,10 @@ import { localProgress } from "@/lib/constants/scroll";
 import { scrollState } from "@/lib/three/scrollState";
 
 /**
- * Hero exploded wheel for Scene 05 — detailed Brabus Monoblock-style
- * wheel with tire, rim barrel, rim lip, multi-spoke design, ventilated
- * brake disc, and performance caliper. Explodes apart mid-scene then
- * reunites as the scene exits.
+ * Hero exploded wheel for Scene 05 — photorealistic Brabus Monoblock
+ * with circumferential tread grooves, Y-split tapered spokes, cross-drilled
+ * brake disc with ventilation vanes, and a multi-piston caliper with
+ * bleeder screws and brake line.
  */
 export default function WheelAssembly() {
   const choreo = useChoreography();
@@ -24,19 +24,59 @@ export default function WheelAssembly() {
   const hubRef = useRef<THREE.Group>(null);
 
   const mats = useMemo(() => {
-    const tireM = new THREE.MeshStandardMaterial({ color: "#080808", metalness: 0, roughness: 0.92 });
-    const tireWallM = new THREE.MeshStandardMaterial({ color: "#0c0c0c", metalness: 0.05, roughness: 0.85 });
-    const rimM = new THREE.MeshStandardMaterial({ color: "#d8d8dc", metalness: 0.95, roughness: 0.15 });
-    const rimLipM = new THREE.MeshStandardMaterial({ color: "#e0e0e4", metalness: 0.97, roughness: 0.08 });
-    const spokeM = new THREE.MeshStandardMaterial({ color: "#c8c8cc", metalness: 0.92, roughness: 0.22 });
-    const discM = new THREE.MeshStandardMaterial({ color: "#a0a0a4", metalness: 0.88, roughness: 0.3 });
-    const discVentM = new THREE.MeshStandardMaterial({ color: "#888890", metalness: 0.85, roughness: 0.35 });
-    const caliperM = new THREE.MeshStandardMaterial({ color: "#cc1a1a", metalness: 0.6, roughness: 0.28 });
-    const caliperBridgeM = new THREE.MeshStandardMaterial({ color: "#b01515", metalness: 0.55, roughness: 0.32 });
-    const hubM = new THREE.MeshStandardMaterial({ color: "#1a1a1e", metalness: 0.85, roughness: 0.2 });
-    const hubCapM = new THREE.MeshStandardMaterial({ color: "#e8e8ec", metalness: 0.96, roughness: 0.1 });
-    const boltM = new THREE.MeshStandardMaterial({ color: "#555558", metalness: 0.9, roughness: 0.25 });
-    return { tireM, tireWallM, rimM, rimLipM, spokeM, discM, discVentM, caliperM, caliperBridgeM, hubM, hubCapM, boltM };
+    // Tire — deep rubber with slight sheen on sidewall
+    const tireTread = new THREE.MeshStandardMaterial({ color: "#0a0a0a", metalness: 0, roughness: 0.95 });
+    const tireSidewall = new THREE.MeshStandardMaterial({ color: "#0e0e0e", metalness: 0.03, roughness: 0.82 });
+    const tireGroove = new THREE.MeshStandardMaterial({ color: "#050505", metalness: 0, roughness: 0.98 });
+
+    // Rim — physical clearcoat for realistic automotive finish
+    const rimBarrel = new THREE.MeshPhysicalMaterial({
+      color: "#c8c8cc", metalness: 0.95, roughness: 0.12,
+      clearcoat: 0.6, clearcoatRoughness: 0.1,
+    });
+    const rimLip = new THREE.MeshPhysicalMaterial({
+      color: "#dcdce0", metalness: 0.97, roughness: 0.06,
+      clearcoat: 0.8, clearcoatRoughness: 0.05,
+    });
+    const spokeMat = new THREE.MeshPhysicalMaterial({
+      color: "#b8b8bc", metalness: 0.93, roughness: 0.18,
+      clearcoat: 0.5, clearcoatRoughness: 0.12,
+    });
+    const spokeEdge = new THREE.MeshPhysicalMaterial({
+      color: "#d0d0d4", metalness: 0.96, roughness: 0.08,
+      clearcoat: 0.7, clearcoatRoughness: 0.08,
+    });
+
+    // Brake disc — scored steel look
+    const discFace = new THREE.MeshStandardMaterial({ color: "#9a9aa0", metalness: 0.9, roughness: 0.28 });
+    const discHat = new THREE.MeshStandardMaterial({ color: "#707078", metalness: 0.85, roughness: 0.35 });
+    const discVane = new THREE.MeshStandardMaterial({ color: "#606068", metalness: 0.8, roughness: 0.4 });
+
+    // Caliper — Brabus red with physical finish
+    const caliperBody = new THREE.MeshPhysicalMaterial({
+      color: "#c41818", metalness: 0.55, roughness: 0.25,
+      clearcoat: 0.4, clearcoatRoughness: 0.15,
+    });
+    const caliperPiston = new THREE.MeshStandardMaterial({ color: "#a0a0a8", metalness: 0.9, roughness: 0.2 });
+    const caliperBolt = new THREE.MeshStandardMaterial({ color: "#404048", metalness: 0.92, roughness: 0.22 });
+    const brakeLine = new THREE.MeshStandardMaterial({ color: "#2a2a30", metalness: 0.7, roughness: 0.35 });
+
+    // Hub
+    const hubBody = new THREE.MeshStandardMaterial({ color: "#181820", metalness: 0.88, roughness: 0.22 });
+    const hubCap = new THREE.MeshPhysicalMaterial({
+      color: "#e0e0e8", metalness: 0.97, roughness: 0.06,
+      clearcoat: 0.9, clearcoatRoughness: 0.04,
+    });
+    const bolt = new THREE.MeshStandardMaterial({ color: "#4a4a52", metalness: 0.92, roughness: 0.2 });
+    const valve = new THREE.MeshStandardMaterial({ color: "#333338", metalness: 0.8, roughness: 0.3 });
+
+    return {
+      tireTread, tireSidewall, tireGroove,
+      rimBarrel, rimLip, spokeMat, spokeEdge,
+      discFace, discHat, discVane,
+      caliperBody, caliperPiston, caliperBolt, brakeLine,
+      hubBody, hubCap, bolt, valve,
+    };
   }, []);
 
   useFrame((_, delta) => {
@@ -67,203 +107,310 @@ export default function WheelAssembly() {
 
       {/* ======== TIRE ================================================ */}
       <group ref={tireRef} rotation={[0, 0, Math.PI / 2]}>
-        {/* Main tread surface */}
-        <mesh material={mats.tireM}>
-          <cylinderGeometry args={[R, R, 0.4, 48]} />
+        {/* Main tread cylinder */}
+        <mesh material={mats.tireTread}>
+          <cylinderGeometry args={[R, R, 0.4, 64]} />
         </mesh>
-        {/* Tread outer edge ring */}
-        <mesh position={[0.2, 0, 0]} material={mats.tireM}>
-          <torusGeometry args={[R, 0.025, 12, 48]} />
+        {/* Inner barrel — darker, visible from behind */}
+        <mesh material={mats.tireGroove}>
+          <cylinderGeometry args={[R * 0.8, R * 0.8, 0.38, 48]} />
         </mesh>
-        {/* Tread inner edge ring */}
-        <mesh position={[-0.2, 0, 0]} material={mats.tireM}>
-          <torusGeometry args={[R, 0.025, 12, 48]} />
+
+        {/* ---- TREAD GROOVES — 4 circumferential channels ---- */}
+        {[-0.14, -0.05, 0.05, 0.14].map((x, gi) => (
+          <mesh key={`groove-${gi}`} position={[x, 0, 0]} material={mats.tireGroove}>
+            <torusGeometry args={[R - 0.005, 0.012, 6, 64]} />
+          </mesh>
+        ))}
+        {/* Tread shoulder edges — rounded transition */}
+        {[0.2, -0.2].map((x, si) => (
+          <mesh key={`shoulder-${si}`} position={[x, 0, 0]} material={mats.tireSidewall}>
+            <torusGeometry args={[R * 0.97, 0.028, 10, 64]} />
+          </mesh>
+        ))}
+
+        {/* ---- SIDEWALLS ---- */}
+        {/* Outer sidewall — slight bulge */}
+        <mesh position={[0.22, 0, 0]} material={mats.tireSidewall}>
+          <torusGeometry args={[R * 0.88, 0.05, 12, 64]} />
         </mesh>
-        {/* Sidewall outer bulge */}
-        <mesh position={[0.22, 0, 0]} material={mats.tireWallM}>
-          <torusGeometry args={[R * 0.92, 0.04, 10, 48]} />
+        {/* Inner sidewall */}
+        <mesh position={[-0.22, 0, 0]} material={mats.tireSidewall}>
+          <torusGeometry args={[R * 0.88, 0.05, 12, 64]} />
         </mesh>
-        {/* Sidewall inner bulge */}
-        <mesh position={[-0.22, 0, 0]} material={mats.tireWallM}>
-          <torusGeometry args={[R * 0.92, 0.04, 10, 48]} />
+        {/* Sidewall branding ring — outer */}
+        <mesh position={[0.215, 0, 0]} material={mats.tireSidewall}>
+          <torusGeometry args={[R * 0.78, 0.012, 8, 64]} />
         </mesh>
-        {/* Sidewall text ring — outer */}
-        <mesh position={[0.21, 0, 0]} material={mats.tireWallM}>
-          <torusGeometry args={[R * 0.85, 0.015, 8, 48]} />
+        {/* Sidewall branding ring — inner */}
+        <mesh position={[-0.215, 0, 0]} material={mats.tireSidewall}>
+          <torusGeometry args={[R * 0.78, 0.012, 8, 64]} />
         </mesh>
-        {/* Inner barrel shadow */}
-        <mesh material={mats.tireM}>
-          <cylinderGeometry args={[R * 0.82, R * 0.82, 0.38, 48]} />
-        </mesh>
+        {/* Bead ring — where tire seats on rim */}
+        {[0.19, -0.19].map((x, bi) => (
+          <mesh key={`bead-${bi}`} position={[x, 0, 0]} material={mats.tireGroove}>
+            <torusGeometry args={[R * 0.74, 0.008, 8, 48]} />
+          </mesh>
+        ))}
       </group>
 
       {/* ======== RIM BARREL ========================================== */}
       <group ref={rimRef} rotation={[0, 0, Math.PI / 2]}>
         {/* Outer barrel */}
-        <mesh material={mats.rimM}>
-          <cylinderGeometry args={[R * 0.72, R * 0.72, 0.42, 48]} />
+        <mesh material={mats.rimBarrel}>
+          <cylinderGeometry args={[R * 0.72, R * 0.72, 0.42, 64]} />
         </mesh>
-        {/* Outer lip — polished ring */}
-        <mesh position={[0.21, 0, 0]} material={mats.rimLipM}>
-          <torusGeometry args={[R * 0.72, 0.018, 10, 48]} />
+        {/* Outer lip — polished stepped profile */}
+        <mesh position={[0.21, 0, 0]} material={mats.rimLip}>
+          <torusGeometry args={[R * 0.72, 0.02, 12, 64]} />
+        </mesh>
+        {/* Lip step — inner ridge */}
+        <mesh position={[0.19, 0, 0]} material={mats.rimLip}>
+          <torusGeometry args={[R * 0.7, 0.008, 8, 48]} />
         </mesh>
         {/* Inner lip */}
-        <mesh position={[-0.21, 0, 0]} material={mats.rimM}>
-          <torusGeometry args={[R * 0.72, 0.014, 8, 48]} />
+        <mesh position={[-0.21, 0, 0]} material={mats.rimBarrel}>
+          <torusGeometry args={[R * 0.72, 0.016, 10, 48]} />
         </mesh>
-        {/* Inner barrel detail ring */}
-        <mesh position={[0, 0, 0]} material={mats.rimM}>
-          <torusGeometry args={[R * 0.68, 0.008, 8, 48]} />
+        {/* Barrel inner reinforcement ring */}
+        <mesh material={mats.rimBarrel}>
+          <torusGeometry args={[R * 0.66, 0.006, 8, 48]} />
+        </mesh>
+        {/* Valve stem hole area */}
+        <mesh position={[0.18, R * 0.71, 0]} material={mats.valve}>
+          <cylinderGeometry args={[0.008, 0.008, 0.04, 8]} />
+        </mesh>
+        {/* Valve stem cap */}
+        <mesh position={[0.2, R * 0.71, 0]} material={mats.valve}>
+          <cylinderGeometry args={[0.006, 0.007, 0.012, 8]} />
         </mesh>
       </group>
 
-      {/* ======== SPOKES =============================================== */}
+      {/* ======== Y-SPLIT SPOKES ====================================== */}
       <group ref={spokesRef} rotation={[0, 0, Math.PI / 2]}>
         {Array.from({ length: spokeCount }).map((_, i) => {
           const angle = (i * Math.PI * 2) / spokeCount;
           const cos = Math.cos(angle);
           const sin = Math.sin(angle);
-          const spokeLen = R * 0.56;
+          const hubR = R * 0.2;
+          const rimR = R * 0.66;
+
+          // Y-split: two arms per spoke
           return (
             <group key={`spoke-${i}`}>
-              {/* Main spoke bar */}
+              {/* Main spoke arm — upper */}
               <mesh
-                position={[0.17, sin * R * 0.36, cos * R * 0.36]}
+                position={[0.16, sin * R * 0.44, cos * R * 0.44]}
                 rotation={[angle, 0, 0]}
-                material={mats.spokeM}
+                material={mats.spokeMat}
               >
-                <boxGeometry args={[0.035, spokeLen, 0.05]} />
+                <boxGeometry args={[0.032, R * 0.48, 0.042]} />
               </mesh>
-              {/* Spoke chamfer — top edge */}
+              {/* Main spoke arm — lower */}
               <mesh
-                position={[0.175, sin * R * 0.36, cos * R * 0.36]}
-                rotation={[angle, 0, 0]}
-                material={mats.rimLipM}
+                position={[0.16, -sin * R * 0.44, -cos * R * 0.44]}
+                rotation={[angle + Math.PI, 0, 0]}
+                material={mats.spokeMat}
               >
-                <boxGeometry args={[0.015, spokeLen * 0.9, 0.012]} />
+                <boxGeometry args={[0.032, R * 0.48, 0.042]} />
               </mesh>
-              {/* Spoke widening near hub */}
+
+              {/* Spoke outer edge highlight */}
               <mesh
-                position={[0.12, sin * R * 0.22, cos * R * 0.22]}
+                position={[0.17, sin * R * 0.44, cos * R * 0.44]}
                 rotation={[angle, 0, 0]}
-                material={mats.spokeM}
+                material={mats.spokeEdge}
               >
-                <boxGeometry args={[0.04, spokeLen * 0.35, 0.06]} />
+                <boxGeometry args={[0.008, R * 0.46, 0.01]} />
+              </mesh>
+
+              {/* Spoke widening near hub — structural base */}
+              <mesh
+                position={[0.1, sin * R * 0.18, cos * R * 0.18]}
+                rotation={[angle, 0, 0]}
+                material={mats.spokeMat}
+              >
+                <boxGeometry args={[0.038, R * 0.28, 0.052]} />
+              </mesh>
+
+              {/* Spoke-to-rim transition — tapered end */}
+              <mesh
+                position={[0.175, sin * R * 0.62, cos * R * 0.62]}
+                rotation={[angle, 0, 0]}
+                material={mats.spokeEdge}
+              >
+                <boxGeometry args={[0.025, R * 0.08, 0.03]} />
               </mesh>
             </group>
           );
         })}
-        {/* Inner spoke ring — structural ring connecting all spokes */}
-        <mesh material={mats.rimM}>
-          <torusGeometry args={[R * 0.36, 0.012, 8, 32]} />
+        {/* Inner structural ring — where spokes meet hub */}
+        <mesh material={mats.rimBarrel}>
+          <torusGeometry args={[R * 0.22, 0.014, 10, 32]} />
         </mesh>
-        {/* Outer spoke ring — near rim lip */}
-        <mesh position={[0.17, 0, 0]} material={mats.rimM}>
-          <torusGeometry args={[R * 0.68, 0.01, 8, 32]} />
+        {/* Outer structural ring — where spokes meet rim */}
+        <mesh position={[0.17, 0, 0]} material={mats.rimBarrel}>
+          <torusGeometry args={[R * 0.66, 0.01, 8, 48]} />
         </mesh>
       </group>
 
       {/* ======== HUB ================================================ */}
       <group ref={hubRef} rotation={[0, 0, Math.PI / 2]}>
-        {/* Center hub body */}
-        <mesh position={[0.18, 0, 0]} material={mats.hubM}>
-          <cylinderGeometry args={[R * 0.14, R * 0.14, 0.06, 24]} />
+        {/* Hub body — recessed barrel */}
+        <mesh position={[0.17, 0, 0]} material={mats.hubBody}>
+          <cylinderGeometry args={[R * 0.16, R * 0.18, 0.07, 24]} />
         </mesh>
-        {/* Center cap — Brabus emblem area */}
-        <mesh position={[0.21, 0, 0]} material={mats.hubCapM}>
-          <cylinderGeometry args={[R * 0.1, R * 0.12, 0.02, 20]} />
+        {/* Hub face — flat mounting surface */}
+        <mesh position={[0.2, 0, 0]} material={mats.hubBody}>
+          <cylinderGeometry args={[R * 0.15, R * 0.15, 0.02, 24]} />
         </mesh>
-        {/* Center cap dome */}
-        <mesh position={[0.22, 0, 0]} material={mats.hubCapM}>
-          <sphereGeometry args={[R * 0.08, 16, 8, 0, Math.PI * 2, 0, Math.PI / 2]} />
+        {/* Center cap — Brabus logo dome */}
+        <mesh position={[0.22, 0, 0]} material={mats.hubCap}>
+          <cylinderGeometry args={[R * 0.1, R * 0.12, 0.025, 20]} />
         </mesh>
-        {/* Lug bolts — 5 pattern */}
+        {/* Cap dome — hemisphere */}
+        <mesh position={[0.235, 0, 0]} rotation={[0, 0, Math.PI / 2]} material={mats.hubCap}>
+          <sphereGeometry args={[R * 0.08, 20, 10, 0, Math.PI * 2, 0, Math.PI / 2]} />
+        </mesh>
+        {/* Lug bolts — 5-bolt pattern */}
         {Array.from({ length: 5 }).map((_, i) => {
           const a = (i * Math.PI * 2) / 5;
           return (
-            <mesh
-              key={`bolt-${i}`}
-              position={[0.19, Math.cos(a) * R * 0.09, Math.sin(a) * R * 0.09]}
-              rotation={[0, 0, 0]}
-              material={mats.boltM}
-            >
-              <cylinderGeometry args={[0.012, 0.014, 0.03, 8]} />
-            </mesh>
+            <group key={`bolt-${i}`}>
+              {/* Bolt head */}
+              <mesh
+                position={[0.2, Math.cos(a) * R * 0.1, Math.sin(a) * R * 0.1]}
+                material={mats.bolt}
+              >
+                <cylinderGeometry args={[0.014, 0.016, 0.035, 6]} />
+              </mesh>
+              {/* Bolt washer */}
+              <mesh
+                position={[0.215, Math.cos(a) * R * 0.1, Math.sin(a) * R * 0.1]}
+                material={mats.bolt}
+              >
+                <cylinderGeometry args={[0.018, 0.018, 0.005, 12]} />
+              </mesh>
+            </group>
           );
         })}
       </group>
 
       {/* ======== BRAKE DISC ========================================== */}
       <group ref={discRef} rotation={[0, 0, Math.PI / 2]}>
-        {/* Main disc surface */}
-        <mesh position={[0.04, 0, 0]} material={mats.discM}>
-          <cylinderGeometry args={[R * 0.58, R * 0.58, 0.018, 48]} />
+        {/* Outer disc face — scored surface */}
+        <mesh position={[0.04, 0, 0]} material={mats.discFace}>
+          <cylinderGeometry args={[R * 0.58, R * 0.58, 0.015, 64]} />
         </mesh>
-        {/* Ventilated disc — outer ring of holes */}
-        {Array.from({ length: 24 }).map((_, i) => {
-          const a = (i * Math.PI * 2) / 24;
-          const r = R * 0.46;
+        {/* Inner disc face */}
+        <mesh position={[0.025, 0, 0]} material={mats.discFace}>
+          <cylinderGeometry args={[R * 0.58, R * 0.58, 0.01, 64]} />
+        </mesh>
+
+        {/* ---- CROSS-DRILLED HOLES — spiral pattern ---- */}
+        {Array.from({ length: 32 }).map((_, i) => {
+          const a = (i * Math.PI * 2) / 32 + (i % 2) * 0.06;
+          const r = R * 0.38 + (i % 3) * R * 0.06;
           return (
             <mesh
-              key={`vent-${i}`}
-              position={[0.04, Math.cos(a) * r, Math.sin(a) * r]}
-              material={mats.discVentM}
+              key={`drill-${i}`}
+              position={[0.035, Math.cos(a) * r, Math.sin(a) * r]}
+              material={mats.discVane}
             >
-              <cylinderGeometry args={[0.018, 0.018, 0.02, 8]} />
+              <cylinderGeometry args={[0.012, 0.012, 0.018, 8]} />
             </mesh>
           );
         })}
-        {/* Ventilated disc — inner ring of holes */}
-        {Array.from({ length: 16 }).map((_, i) => {
-          const a = (i * Math.PI * 2) / 16;
-          const r = R * 0.34;
+
+        {/* ---- VENTILATION VANES — between disc faces ---- */}
+        {Array.from({ length: 18 }).map((_, i) => {
+          const a = (i * Math.PI * 2) / 18;
+          const r = R * 0.48;
           return (
             <mesh
-              key={`vent-in-${i}`}
-              position={[0.04, Math.cos(a) * r, Math.sin(a) * r]}
-              material={mats.discVentM}
+              key={`vane-${i}`}
+              position={[0.032, Math.cos(a) * r, Math.sin(a) * r]}
+              rotation={[0, 0, a]}
+              material={mats.discVane}
             >
-              <cylinderGeometry args={[0.014, 0.014, 0.02, 8]} />
+              <boxGeometry args={[0.008, 0.04, 0.012]} />
             </mesh>
           );
         })}
+
         {/* Disc hat — center raised portion */}
-        <mesh position={[0.06, 0, 0]} material={mats.discM}>
-          <cylinderGeometry args={[R * 0.18, R * 0.22, 0.025, 24]} />
+        <mesh position={[0.055, 0, 0]} material={mats.discHat}>
+          <cylinderGeometry args={[R * 0.18, R * 0.24, 0.03, 24]} />
         </mesh>
-        {/* Ventilation ring groove */}
-        <mesh position={[0.04, 0, 0]} material={mats.discVentM}>
-          <torusGeometry args={[R * 0.42, 0.012, 8, 32]} />
+        {/* Hat face — flat surface */}
+        <mesh position={[0.07, 0, 0]} material={mats.discHat}>
+          <cylinderGeometry args={[R * 0.17, R * 0.17, 0.008, 24]} />
+        </mesh>
+        {/* Center bore */}
+        <mesh position={[0.07, 0, 0]} material={mats.discVane}>
+          <cylinderGeometry args={[R * 0.08, R * 0.08, 0.01, 16]} />
         </mesh>
       </group>
 
       {/* ======== CALIPER ============================================= */}
       <group ref={caliperRef}>
-        {/* Main caliper body — multi-pot performance caliper */}
-        <mesh position={[0.14, R * 0.55, 0]} material={mats.caliperM}>
-          <boxGeometry args={[0.22, 0.32, 0.26]} />
+        {/* Main caliper body — rounded performance caliper */}
+        <mesh position={[0.14, R * 0.52, 0]} material={mats.caliperBody}>
+          <boxGeometry args={[0.2, 0.3, 0.28]} />
         </mesh>
-        {/* Caliper bridge — top clamp */}
-        <mesh position={[0.14, R * 0.55, 0]} material={mats.caliperBridgeM}>
-          <boxGeometry args={[0.24, 0.06, 0.28]} />
+        {/* Caliper top bridge — rounded */}
+        <mesh position={[0.14, R * 0.66, 0]} material={mats.caliperBody}>
+          <boxGeometry args={[0.22, 0.04, 0.3]} />
         </mesh>
-        {/* Caliper bridge — bottom clamp */}
-        <mesh position={[0.14, R * 0.38, 0]} material={mats.caliperBridgeM}>
-          <boxGeometry args={[0.24, 0.04, 0.28]} />
+        {/* Caliper bottom bridge */}
+        <mesh position={[0.14, R * 0.36, 0]} material={mats.caliperBody}>
+          <boxGeometry args={[0.22, 0.04, 0.3]} />
         </mesh>
-        {/* Caliper pistons — visible through opening */}
-        {[-0.06, 0.06].map((z) => (
-          <mesh key={`piston-${z}`} position={[0.16, R * 0.52, z]} material={mats.rimM}>
-            <cylinderGeometry args={[0.025, 0.025, 0.04, 12]} />
+        {/* Caliper outer face — logo area */}
+        <mesh position={[0.25, R * 0.52, 0]} material={mats.caliperBody}>
+          <boxGeometry args={[0.012, 0.22, 0.2]} />
+        </mesh>
+
+        {/* ---- PISTONS — 6-pot radial mount ---- */}
+        {[-0.08, 0, 0.08].map((z) => (
+          <group key={`piston-${z}`}>
+            {/* Piston bore */}
+            <mesh position={[0.16, R * 0.52, z]} material={mats.caliperPiston}>
+              <cylinderGeometry args={[0.028, 0.028, 0.045, 16]} />
+            </mesh>
+            {/* Piston face */}
+            <mesh position={[0.185, R * 0.52, z]} material={mats.caliperPiston}>
+              <cylinderGeometry args={[0.024, 0.024, 0.008, 12]} />
+            </mesh>
+          </group>
+        ))}
+
+        {/* ---- BLEEDER SCREWS ---- */}
+        {[-0.08, 0.08].map((z) => (
+          <mesh key={`bleed-${z}`} position={[0.15, R * 0.64, z]} material={mats.caliperBolt}>
+            <cylinderGeometry args={[0.005, 0.005, 0.015, 6]} />
           </mesh>
         ))}
-        {/* Caliper logo area — flat face */}
-        <mesh position={[0.26, R * 0.55, 0]} material={mats.caliperM}>
-          <boxGeometry args={[0.01, 0.2, 0.18]} />
+
+        {/* ---- CALIPER MOUNTING BOLTS ---- */}
+        {[-0.1, 0.1].map((z) => (
+          <mesh key={`mount-${z}`} position={[0.12, R * 0.38, z]} material={mats.caliperBolt}>
+            <cylinderGeometry args={[0.008, 0.008, 0.025, 6]} />
+          </mesh>
+        ))}
+
+        {/* ---- BRAKE LINE — flexible hose ---- */}
+        <mesh position={[0.14, R * 0.68, 0.12]} material={mats.brakeLine}>
+          <cylinderGeometry args={[0.004, 0.004, 0.06, 8]} />
         </mesh>
-        {/* Brake pad indicator line */}
-        <mesh position={[0.13, R * 0.48, 0]} material={mats.discVentM}>
-          <boxGeometry args={[0.005, 0.008, 0.2]} />
+        {/* Brake line fitting */}
+        <mesh position={[0.14, R * 0.71, 0.12]} material={mats.caliperBolt}>
+          <cylinderGeometry args={[0.007, 0.007, 0.012, 8]} />
+        </mesh>
+
+        {/* ---- BRAKE PAD RETENTION CLIP ---- */}
+        <mesh position={[0.13, R * 0.48, 0]} material={mats.caliperBolt}>
+          <boxGeometry args={[0.004, 0.006, 0.22]} />
         </mesh>
       </group>
     </group>
