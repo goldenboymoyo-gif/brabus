@@ -430,7 +430,7 @@ export default function InteriorCabin() {
   const W = 1.6;
 
   return (
-    <group ref={group} position={[0, 0.55, -0.4]}>
+    <group ref={group} position={[0, 0.55, -0.4]} renderOrder={10}>
 
       {/* ======== DASHBOARD ========================================== */}
       {/* Upper dashboard — curved contour (layered slabs for contour) */}

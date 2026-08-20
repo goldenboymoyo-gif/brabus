@@ -10,7 +10,7 @@ import { useRef } from "react";
  * ======================================================================== */
 
 /** Current body paint color hex */
-export const paintColor = { current: "#0c0c0f" };
+export const paintColor = { current: "#e8e4e0" };
 
 /** Engine started state */
 export const engineState = { current: false };

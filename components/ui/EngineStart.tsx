@@ -17,10 +17,13 @@ let audioCtx: AudioContext | null = null;
 let masterGain: GainNode | null = null;
 
 function ensureAudio() {
-  if (audioCtx) return;
+  if (audioCtx) {
+    if (audioCtx.state === "suspended") audioCtx.resume();
+    return;
+  }
   audioCtx = new AudioContext();
   masterGain = audioCtx.createGain();
-  masterGain.gain.value = 0.35;
+  masterGain.gain.value = 0.5;
   masterGain.connect(audioCtx.destination);
 }
 

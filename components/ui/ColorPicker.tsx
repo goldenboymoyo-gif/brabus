@@ -25,7 +25,7 @@ const PRESET_COLORS = [
 
 export default function ColorPicker() {
   const [open, setOpen] = useState(false);
-  const [selected, setSelected] = useState("#0c0c0f");
+  const [selected, setSelected] = useState("#e8e4e0");
 
   const selectColor = (hex: string) => {
     setSelected(hex);

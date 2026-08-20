@@ -80,7 +80,7 @@ function playTick(ctx: AudioContext, dest: AudioNode) {
   osc.frequency.setValueAtTime(2400, now);
   osc.frequency.exponentialRampToValueAtTime(800, now + 0.04);
   gain.gain.setValueAtTime(0, now);
-  gain.gain.linearRampToValueAtTime(0.04, now + 0.005);
+  gain.gain.linearRampToValueAtTime(0.08, now + 0.005);
   gain.gain.exponentialRampToValueAtTime(0.001, now + 0.06);
   osc.connect(gain);
   gain.connect(dest);
@@ -111,6 +111,7 @@ export default function ScrollSound() {
 
   useFrame(() => {
     if (!audioCtx || !masterGain) return;
+    if (audioCtx.state === "suspended") audioCtx.resume();
 
     const progress = scrollState.progress;
     const velocity = scrollState.velocity;
