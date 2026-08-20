@@ -362,27 +362,27 @@ export function buildScreenTexture(
   const [c, ctx] = createCanvas(size, size);
 
   if (variant === "cluster") {
-    // Dark background
-    ctx.fillStyle = "#080a0f";
+    // Dark background — slightly lighter for better contrast
+    ctx.fillStyle = "#0c1220";
     ctx.fillRect(0, 0, size, size);
 
-    // Speed arc
+    // Speed arc — bright white
     ctx.strokeStyle = "#ffffff";
-    ctx.lineWidth = 3;
+    ctx.lineWidth = 4;
     ctx.beginPath();
     ctx.arc(size / 2, size * 0.65, size * 0.3, Math.PI * 1.15, Math.PI * 1.85);
     ctx.stroke();
 
-    // Redline zone
-    ctx.strokeStyle = "#cc3333";
-    ctx.lineWidth = 6;
+    // Redline zone — vivid red
+    ctx.strokeStyle = "#ff2222";
+    ctx.lineWidth = 8;
     ctx.beginPath();
     ctx.arc(size / 2, size * 0.65, size * 0.3, Math.PI * 1.72, Math.PI * 1.85);
     ctx.stroke();
 
-    // Tick marks
-    ctx.strokeStyle = "rgba(255,255,255,0.4)";
-    ctx.lineWidth = 1;
+    // Tick marks — brighter
+    ctx.strokeStyle = "rgba(255,255,255,0.6)";
+    ctx.lineWidth = 1.5;
     for (let i = 0; i <= 20; i++) {
       const angle = Math.PI * 1.15 + (i / 20) * Math.PI * 0.7;
       const inner = size * 0.26;

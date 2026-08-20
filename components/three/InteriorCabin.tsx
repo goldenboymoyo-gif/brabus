@@ -99,23 +99,23 @@ function useMaterials() {
       transparent: true,
     });
 
-    // Screen — instrument cluster
+    // Screen — instrument cluster (bright emissive for dashboard visibility)
     const clusterMat = new THREE.MeshStandardMaterial({
       map: screenCluster,
-      emissive: new THREE.Color("#ffffff"),
+      emissive: new THREE.Color("#ccddff"),
       emissiveMap: screenCluster,
-      emissiveIntensity: 1.5,
+      emissiveIntensity: 3.0,
       metalness: 0.0,
       roughness: 0.1,
       transparent: true,
     });
 
-    // Screen — infotainment
+    // Screen — infotainment (bright emissive for dashboard visibility)
     const infotainmentMat = new THREE.MeshStandardMaterial({
       map: screenNav,
-      emissive: new THREE.Color("#ffffff"),
+      emissive: new THREE.Color("#aaccff"),
       emissiveMap: screenNav,
-      emissiveIntensity: 1.2,
+      emissiveIntensity: 2.8,
       metalness: 0.0,
       roughness: 0.1,
       transparent: true,
@@ -416,13 +416,13 @@ export default function InteriorCabin() {
       mat.depthWrite = o > 0.5;
     });
 
-    // Screen glow ramps in
-    m.clusterMat.emissiveIntensity = 0.4 + o * 2.5;
-    m.infotainmentMat.emissiveIntensity = 0.3 + o * 2.0;
+    // Screen glow ramps in — boosted for dashboard visibility
+    m.clusterMat.emissiveIntensity = 1.5 + o * 4.5;
+    m.infotainmentMat.emissiveIntensity = 1.2 + o * 4.0;
 
-    // Ambient strips subtle pulse
-    m.ambientWarmMat.emissiveIntensity = 1.5 + Math.sin(Date.now() * 0.002) * 0.4;
-    m.ambientBlueMat.emissiveIntensity = 1.0 + Math.sin(Date.now() * 0.0017 + 1.2) * 0.3;
+    // Ambient strips — warmer, brighter pulse
+    m.ambientWarmMat.emissiveIntensity = 2.5 + Math.sin(Date.now() * 0.002) * 0.8;
+    m.ambientBlueMat.emissiveIntensity = 1.8 + Math.sin(Date.now() * 0.0017 + 1.2) * 0.5;
 
     if (group.current) group.current.visible = o > 0.01;
   });

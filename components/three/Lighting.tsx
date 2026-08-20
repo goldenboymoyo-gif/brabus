@@ -27,8 +27,10 @@ export default function Lighting() {
   const intFillSide = useRef<THREE.PointLight>(null);
   const intFillRear = useRef<THREE.PointLight>(null);
   const intScreenGlow = useRef<THREE.PointLight>(null);
+  const intClusterGlow = useRef<THREE.PointLight>(null);
   const intAmbientWarm = useRef<THREE.RectAreaLight | any>(null);
   const intAmbientBlue = useRef<THREE.PointLight>(null);
+  const intConsoleGlow = useRef<THREE.PointLight>(null);
 
   useFrame(() => {
     const s = choreo.current;
@@ -51,9 +53,13 @@ export default function Lighting() {
     // Rear fill — subtle, lifts shadows behind seats
     if (intFillRear.current) intFillRear.current.intensity = i * 2.5;
     // Screen glow — localized near dashboard screens
-    if (intScreenGlow.current) intScreenGlow.current.intensity = i * 3;
+    if (intScreenGlow.current) intScreenGlow.current.intensity = i * 5;
+    // Cluster screen — dedicated driver-side glow
+    if (intClusterGlow.current) intClusterGlow.current.intensity = i * 4.5;
+    // Console glow — center console area
+    if (intConsoleGlow.current) intConsoleGlow.current.intensity = i * 2.5;
     // Ambient warm — subtle overall warm tint
-    if (intAmbientBlue.current) intAmbientBlue.current.intensity = i * 1.5;
+    if (intAmbientBlue.current) intAmbientBlue.current.intensity = i * 2;
   });
 
   return (
@@ -170,10 +176,30 @@ export default function Lighting() {
       {/* Screen glow — localized near dashboard, cool blue tint */}
       <pointLight
         ref={intScreenGlow}
-        position={[0, 0.75, -0.7]}
-        distance={2}
+        position={[0.2, 0.75, -0.7]}
+        distance={2.5}
         decay={2}
         color="#a0c0e0"
+        intensity={0}
+      />
+
+      {/* Cluster screen glow — driver side, warm-cool blend */}
+      <pointLight
+        ref={intClusterGlow}
+        position={[-0.42, 0.78, -0.7]}
+        distance={2}
+        decay={2}
+        color="#c0d4f0"
+        intensity={0}
+      />
+
+      {/* Console glow — center area, warm */}
+      <pointLight
+        ref={intConsoleGlow}
+        position={[0, 0.5, -0.1]}
+        distance={1.5}
+        decay={2}
+        color="#ffe8cc"
         intensity={0}
       />
 
