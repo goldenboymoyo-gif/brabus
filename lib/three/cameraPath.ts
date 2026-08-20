@@ -55,32 +55,44 @@ export const CAMERA_KEYFRAMES: CamKeyframe[] = [
   { t: 0.57, pos: P(2.85, 0.95, 0.9), look: P(1.6, 0.62, 0), fov: 30, bodyOpacity: 0.08, wheelFocus: 1, interiorFocus: 0, carbonFocus: 0, headlight: 0.05, fog: 0.02 },
   { t: 0.6, pos: P(2.2, 1.4, 2.4), look: P(0.3, 0.9, 0), fov: 30, bodyOpacity: 0.05, wheelFocus: 0, interiorFocus: 0, carbonFocus: 0, headlight: 0, fog: 0.02 },
 
-  // 06 INTERIOR — cinematic entry through the driver's door into the FULL cockpit
-  // GLB interior positions (meters, after hierarchy transform):
-  //   Steering wheel: (0.41, 1.25, 0.36)  — driver's side, forward
-  //   Driver seat:    (0.41, 1.22, -0.13)
-  //   Passenger seat: (-0.42, 1.21, -0.13)
-  //   Dashboard/gauges: (0.43, 1.33, 0.63) — forward of seats
-  //   Rear seats:     (-0.005, 1.03, -0.87) — back of cabin
-  //   FL door: (0.75, 1.11, 0.35)   FR door: (-0.75, 1.10, 0.35)
+  // 06 INTERIOR — 360° orbital sweep inside the cabin
+  // GLB interior positions (meters): cabin center ≈ (0, 1.15, 0.0)
+  //   Steering wheel: (0.41, 1.25, 0.36)   Driver seat: (0.41, 1.22, -0.13)
+  //   Passenger seat: (-0.42, 1.21, -0.13) Dashboard: (0.43, 1.33, 0.63)
+  //   Rear seats: (-0.005, 1.03, -0.87)   FL door: (0.75, 1.11, 0.35)
   //
-  // Camera MUST look toward +Z (forward at dash), NOT -Z (rear seats).
+  // Camera enters from driver's door, then does a full 360° orbit inside
+  // the cabin looking inward — showing dash, both seats, door panels,
+  // steering wheel, gauges, center console, and rear in one continuous sweep.
   //
-  // Stage 1 (0.60–0.62): Outside driver's door — body starts fading
-  // Stage 2 (0.62–0.64): Push through the door — crossfade interior in
-  // Stage 3 (0.64–0.66): Wide cockpit — behind seats, looking forward at full dash
-  // Stage 4 (0.66–0.675): Driver's perspective — closer to steering wheel & gauges
-  // Stage 5 (0.675–0.69): Slow pan across center dash & passenger side
-  { t: 0.60, pos: P(-1.6, 1.3, 0.2),    look: P(0.2, 1.15, 0.3), fov: 36, bodyOpacity: 0.4, wheelFocus: 0, interiorFocus: 0.05, carbonFocus: 0, headlight: 0, fog: 0.02 },
-  { t: 0.62, pos: P(-0.8, 1.22, -0.05),  look: P(0.2, 1.12, 0.35), fov: 40, bodyOpacity: 0.15, wheelFocus: 0, interiorFocus: 0.3, carbonFocus: 0, headlight: 0, fog: 0.02 },
-  // Wide cockpit — behind front seats, looking FORWARD at full dash, both seats, both doors
-  { t: 0.64, pos: P(0, 1.3, -0.35),     look: P(0, 1.1, 0.35), fov: 52, bodyOpacity: 0, wheelFocus: 0, interiorFocus: 0.8, carbonFocus: 0, headlight: 0, fog: 0.02 },
-  // Full interior — centered, steering wheel + gauges visible, both door panels
-  { t: 0.66, pos: P(0.05, 1.22, -0.3),   look: P(0.15, 1.08, 0.4), fov: 50, bodyOpacity: 0, wheelFocus: 0, interiorFocus: 1, carbonFocus: 0, headlight: 0, fog: 0.02 },
-  // Driver's eye — closer to steering wheel, gauges glow
-  { t: 0.675, pos: P(0.2, 1.18, -0.2),  look: P(0.35, 1.12, 0.45), fov: 46, bodyOpacity: 0, wheelFocus: 0, interiorFocus: 1, carbonFocus: 0, headlight: 0, fog: 0.02 },
-  // Pan to center dash — infotainment screen, shifter, passenger dash
-  { t: 0.69, pos: P(0, 1.15, -0.15),     look: P(0.1, 1.05, 0.5), fov: 44, bodyOpacity: 0, wheelFocus: 0, interiorFocus: 1, carbonFocus: 0, headlight: 0, fog: 0.02 },
+  // Entry (0.60–0.62): Approach from outside driver's door
+  // Push in (0.62–0.63): Through the door into the cabin
+  // Orbit start (0.63): Front dash view (looking at windshield/steering)
+  // 90° (0.645): Passenger side door panel
+  // 180° (0.655): Rear seats, rear console
+  // 270° (0.665): Driver door panel, steering wheel close-up
+  // 360° (0.675): Back to front dash, gauges glowing
+  // Pull out (0.68–0.69): Slow pull back toward center before transition
+
+  // Entry — outside driver's door, body fading
+  { t: 0.60, pos: P(-1.5, 1.3, 0.2),    look: P(0.1, 1.15, 0.1), fov: 36, bodyOpacity: 0.4, wheelFocus: 0, interiorFocus: 0.05, carbonFocus: 0, headlight: 0, fog: 0.02 },
+  // Push through the door
+  { t: 0.62, pos: P(-0.6, 1.22, 0.0),    look: P(0.1, 1.15, 0.15), fov: 42, bodyOpacity: 0.1, wheelFocus: 0, interiorFocus: 0.4, carbonFocus: 0, headlight: 0, fog: 0.02 },
+  // 360° ORBIT — cabin center at (0, 1.15, 0.0), radius ~0.55
+  // 0° — Front: looking at dashboard, windshield, steering wheel from behind seats
+  { t: 0.63, pos: P(0, 1.2, 0.55),      look: P(0, 1.1, -0.1), fov: 52, bodyOpacity: 0, wheelFocus: 0, interiorFocus: 0.7, carbonFocus: 0, headlight: 0, fog: 0.02 },
+  // 60° — Front-right: steering wheel + gauges close-up from driver's angle
+  { t: 0.64, pos: P(0.48, 1.2, 0.28),    look: P(0, 1.1, -0.05), fov: 50, bodyOpacity: 0, wheelFocus: 0, interiorFocus: 1, carbonFocus: 0, headlight: 0, fog: 0.02 },
+  // 120° — Right: passenger door panel, passenger seat, right side of dash
+  { t: 0.65, pos: P(0.55, 1.18, -0.2),   look: P(0, 1.1, 0), fov: 50, bodyOpacity: 0, wheelFocus: 0, interiorFocus: 1, carbonFocus: 0, headlight: 0, fog: 0.02 },
+  // 180° — Rear: rear seats, rear console, looking back through cabin
+  { t: 0.66, pos: P(0, 1.18, -0.55),     look: P(0, 1.12, 0.1), fov: 50, bodyOpacity: 0, wheelFocus: 0, interiorFocus: 1, carbonFocus: 0, headlight: 0, fog: 0.02 },
+  // 240° — Left: driver door panel, steering wheel from the side
+  { t: 0.67, pos: P(-0.55, 1.18, -0.2),  look: P(0, 1.12, 0.1), fov: 50, bodyOpacity: 0, wheelFocus: 0, interiorFocus: 1, carbonFocus: 0, headlight: 0, fog: 0.02 },
+  // 300° — Front-left: driver's perspective of dash, cluster glowing
+  { t: 0.68, pos: P(-0.48, 1.2, 0.28),   look: P(0.1, 1.1, 0.1), fov: 48, bodyOpacity: 0, wheelFocus: 0, interiorFocus: 1, carbonFocus: 0, headlight: 0, fog: 0.02 },
+  // 360° — Back to front, slow pull up and center for the transition out
+  { t: 0.69, pos: P(0, 1.3, 0.4),        look: P(0, 1.08, -0.1), fov: 46, bodyOpacity: 0, wheelFocus: 0, interiorFocus: 1, carbonFocus: 0, headlight: 0, fog: 0.02 },
 
   // 07 SPECIFICATIONS — return to a clean, confident 3/4 hero shot
   { t: 0.72, pos: P(4.2, 1.3, 3.6), look: P(0, 0.7, 0), fov: 32, bodyOpacity: 0.6, wheelFocus: 0, interiorFocus: 0, carbonFocus: 0, headlight: 0.5, fog: 0.1 },
