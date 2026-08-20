@@ -7,7 +7,6 @@ next-env.d.ts
 tsconfig.tsbuildinfo
 
 # Large binary assets — keep repo lightweight
-public/models/**/*.glb
 public/models/**/*.zip
 public/models/**/*.fbx
 public/models/**/*.usdz

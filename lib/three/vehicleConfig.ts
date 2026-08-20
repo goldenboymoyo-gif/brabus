@@ -17,7 +17,7 @@
 //      origin, facing +Z).
 // ============================================================================
 
-export const MODEL_URL: string | null = null;
+export const MODEL_URL: string | null = "/models/brabus-g900.glb";
 
 // Scale: Sketchfab models are usually in real-world meters (~4.8m long G-Class).
 // The camera path expects the car ~4.35 units long, centered at origin.
