@@ -12,6 +12,7 @@ import VehicleModel from "./VehicleModel";
 import WheelAssembly from "./WheelAssembly";
 import CarbonSurface from "./CarbonSurface";
 import InteriorCabin from "./InteriorCabin";
+import CarCover from "./CarCover";
 import InteriorSound from "./InteriorSound";
 import ScrollSound from "./ScrollSound";
 import MirrorReflection from "./MirrorReflection";
@@ -46,6 +47,7 @@ export default function SceneCanvas() {
             <Environment />
             <Particles />
             <VehicleModel />
+            <CarCover />
             <WheelAssembly />
             <CarbonSurface />
             <InteriorCabin />

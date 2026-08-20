@@ -30,9 +30,9 @@ export interface CamKeyframe {
 const P = (x: number, y: number, z: number) => new THREE.Vector3(x, y, z);
 
 export const CAMERA_KEYFRAMES: CamKeyframe[] = [
-  // 01 REVEAL — low, far, almost black, slow dolly in toward the face
-  { t: 0.0, pos: P(0, 1.1, 9.5), look: P(0, 0.9, 0), fov: 32, bodyOpacity: 1, wheelFocus: 0, interiorFocus: 0, carbonFocus: 0, headlight: 0.05, fog: 1 },
-  { t: 0.11, pos: P(0, 1.05, 6.4), look: P(0, 0.85, 0), fov: 30, bodyOpacity: 1, wheelFocus: 0, interiorFocus: 0, carbonFocus: 0, headlight: 0.55, fog: 0.7 },
+  // 01 REVEAL — stage lights up as cover lifts, camera slowly pushes in
+  { t: 0.0, pos: P(0, 1.4, 9.5), look: P(0, 0.9, 0), fov: 32, bodyOpacity: 1, wheelFocus: 0, interiorFocus: 0, carbonFocus: 0, headlight: 0.1, fog: 0.6 },
+  { t: 0.11, pos: P(0, 1.2, 6.4), look: P(0, 0.85, 0), fov: 30, bodyOpacity: 1, wheelFocus: 0, interiorFocus: 0, carbonFocus: 0, headlight: 0.6, fog: 0.3 },
 
   // 02 HERO — orbit: front -> 3/4 -> side -> rear 3/4 -> rear
   { t: 0.13, pos: P(0, 1.3, 6.2), look: P(0, 0.8, 0), fov: 34, bodyOpacity: 1, wheelFocus: 0, interiorFocus: 0, carbonFocus: 0, headlight: 0.7, fog: 0.35 },

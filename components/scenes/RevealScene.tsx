@@ -29,7 +29,7 @@ export default function RevealScene() {
           scrollTrigger: {
             trigger: "#scene-01",
             start: "top top",
-            end: "70% top",
+            end: "50% top",
             scrub: true,
           },
         }
