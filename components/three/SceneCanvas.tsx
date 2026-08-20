@@ -11,7 +11,6 @@ import Particles from "./Particles";
 import VehicleModel from "./VehicleModel";
 import WheelAssembly from "./WheelAssembly";
 import CarbonSurface from "./CarbonSurface";
-import InteriorCabin from "./InteriorCabin";
 import InteriorSound from "./InteriorSound";
 
 /**
@@ -46,7 +45,6 @@ export default function SceneCanvas() {
             <VehicleModel />
             <WheelAssembly />
             <CarbonSurface />
-            <InteriorCabin />
             <InteriorSound />
           </Suspense>
           <CameraRig />

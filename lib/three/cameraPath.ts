@@ -6,8 +6,6 @@ import { SCENE_RANGES } from "@/lib/constants/scroll";
 // Keyframes correspond to the story beats described in the brief:
 // reveal -> orbit hero -> power run -> carbon macro -> wheel focus ->
 // interior -> specs hero -> beast close -> final pull-back.
-// Position + lookAt are each interpolated with Catmull-Rom splines so the
-// path is one smooth curve with no hard cuts between scenes.
 // ============================================================================
 
 export interface CamKeyframe {
@@ -44,8 +42,6 @@ export const CAMERA_KEYFRAMES: CamKeyframe[] = [
   { t: 0.24, pos: P(0, 1.6, -6.4), look: P(0, 0.65, 0), fov: 34, bodyOpacity: 1, wheelFocus: 0, interiorFocus: 0, carbonFocus: 0, headlight: 0.3, fog: 0.2 },
 
   // 03 POWER — the car surges toward camera, aggressive low fast push
-  // (kept >=3.5 units from the car's front bumper at all times so the FOV
-  // punch reads as speed rather than clipping into the headlight geometry)
   { t: 0.27, pos: P(0.8, 1.0, 6.6), look: P(0, 0.8, -2), fov: 42, bodyOpacity: 1, wheelFocus: 0, interiorFocus: 0, carbonFocus: 0, headlight: 0.8, fog: 0.15 },
   { t: 0.33, pos: P(-0.8, 0.85, 4.4), look: P(0, 0.75, -4), fov: 50, bodyOpacity: 1, wheelFocus: 0, interiorFocus: 0, carbonFocus: 0, headlight: 0.9, fog: 0.1 },
   { t: 0.36, pos: P(0, 0.95, 4.8), look: P(0, 0.8, 0), fov: 38, bodyOpacity: 1, wheelFocus: 0, interiorFocus: 0, carbonFocus: 0, headlight: 0.6, fog: 0.15 },
@@ -55,21 +51,24 @@ export const CAMERA_KEYFRAMES: CamKeyframe[] = [
   { t: 0.47, pos: P(0.55, 0.95, 0.55), look: P(0.5, 0.9, 0.2), fov: 18, bodyOpacity: 0.15, wheelFocus: 0, interiorFocus: 0, carbonFocus: 1, headlight: 0.1, fog: 0.02 },
 
   // 05 WHEELS — pull back and drop to the wheel, exploded assembly
-  // (WheelAssembly.tsx sits at world position [1.6, 0.62, 0] — lookAt targets
-  // its actual vertical center so the exploded parts stay framed)
   { t: 0.5, pos: P(2.3, 1.05, 1.9), look: P(1.6, 0.62, 0.4), fov: 32, bodyOpacity: 0.35, wheelFocus: 0.4, interiorFocus: 0, carbonFocus: 0, headlight: 0.15, fog: 0.05 },
   { t: 0.57, pos: P(2.85, 0.95, 0.9), look: P(1.6, 0.62, 0), fov: 30, bodyOpacity: 0.08, wheelFocus: 1, interiorFocus: 0, carbonFocus: 0, headlight: 0.05, fog: 0.02 },
   { t: 0.6, pos: P(2.2, 1.4, 2.4), look: P(0.3, 0.9, 0), fov: 30, bodyOpacity: 0.05, wheelFocus: 0, interiorFocus: 0, carbonFocus: 0, headlight: 0, fog: 0.02 },
 
-  // 06 INTERIOR — cinematic multi-stage entry into the cabin
-  // Stage 1: Approach from outside, looking toward driver door area
-  // Stage 2: Push through door, interior lights fade in
-  // Stage 3: Settle into driver's eye position, look at dash
-  // Stage 4: Slow pan across dash / steering wheel
-  { t: 0.6,   pos: P(1.8, 1.5, 2.8),  look: P(-0.1, 0.8, -0.4), fov: 30, bodyOpacity: 0.05, wheelFocus: 0, interiorFocus: 0.1, carbonFocus: 0, headlight: 0, fog: 0.02 },
-  { t: 0.63,  pos: P(0.7, 1.3, 1.6),  look: P(-0.05, 0.85, -0.6), fov: 34, bodyOpacity: 0, wheelFocus: 0, interiorFocus: 0.6, carbonFocus: 0, headlight: 0, fog: 0.02 },
-  { t: 0.66,  pos: P(-0.05, 1.08, 0.5), look: P(0.05, 0.75, -0.9), fov: 38, bodyOpacity: 0, wheelFocus: 0, interiorFocus: 1, carbonFocus: 0, headlight: 0, fog: 0.02 },
-  { t: 0.69,  pos: P(-0.35, 0.95, 0.0), look: P(-0.1, 0.72, -1.2), fov: 36, bodyOpacity: 0, wheelFocus: 0, interiorFocus: 1, carbonFocus: 0, headlight: 0, fog: 0.02 },
+  // 06 INTERIOR — cinematic physical entry through the driver's door
+  // The G900 GLB is at scale 0.9. Driver's side is -X.
+  // Stage 1 (0.60–0.62): Outside driver's door, looking in — exterior fades
+  // Stage 2 (0.62–0.64): Push through the door opening — crossfade
+  // Stage 3 (0.64–0.66): Settle into driver's eye position — interior fully visible
+  // Stage 4 (0.66–0.69): Slow pan — steering wheel, cluster, dash
+  { t: 0.60, pos: P(-2.0, 1.35, 1.2),  look: P(-0.5, 1.0, -0.2), fov: 32, bodyOpacity: 0.4, wheelFocus: 0, interiorFocus: 0.05, carbonFocus: 0, headlight: 0, fog: 0.02 },
+  { t: 0.62, pos: P(-1.2, 1.2, 0.8),   look: P(-0.4, 1.0, -0.4), fov: 36, bodyOpacity: 0.15, wheelFocus: 0, interiorFocus: 0.3, carbonFocus: 0, headlight: 0, fog: 0.02 },
+  { t: 0.64, pos: P(-0.5, 1.15, 0.3),   look: P(-0.2, 1.0, -0.8), fov: 40, bodyOpacity: 0, wheelFocus: 0, interiorFocus: 0.7, carbonFocus: 0, headlight: 0, fog: 0.02 },
+  { t: 0.66, pos: P(-0.35, 1.08, -0.1),  look: P(-0.1, 0.95, -1.0), fov: 38, bodyOpacity: 0, wheelFocus: 0, interiorFocus: 1, carbonFocus: 0, headlight: 0, fog: 0.02 },
+  // Slow pan toward center dash / steering wheel detail
+  { t: 0.675, pos: P(-0.25, 1.05, -0.15), look: P(0.1, 0.9, -1.1), fov: 36, bodyOpacity: 0, wheelFocus: 0, interiorFocus: 1, carbonFocus: 0, headlight: 0, fog: 0.02 },
+  // Final interior moment — wide dash view before transitioning out
+  { t: 0.69, pos: P(-0.15, 1.02, -0.2),  look: P(0.0, 0.88, -1.2), fov: 34, bodyOpacity: 0, wheelFocus: 0, interiorFocus: 1, carbonFocus: 0, headlight: 0, fog: 0.02 },
 
   // 07 SPECIFICATIONS — return to a clean, confident 3/4 hero shot
   { t: 0.72, pos: P(4.2, 1.3, 3.6), look: P(0, 0.7, 0), fov: 32, bodyOpacity: 0.6, wheelFocus: 0, interiorFocus: 0, carbonFocus: 0, headlight: 0.5, fog: 0.1 },

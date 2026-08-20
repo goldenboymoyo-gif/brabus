@@ -9,8 +9,9 @@ import { useChoreography } from "@/lib/three/choreography";
  * Studio + Interior Lighting Rig
  * ---------------------------------------------------------------------------
  * Exterior: dark studio with hard key, cool rim, weak fill, headlights.
- * Interior: cinematic multi-source — overhead soft, ambient strips, screen
- * glow contribution, side fills — all driven by interiorFocus.
+ * Interior: cinematic multi-source lighting designed for the real G900
+ * cabin geometry — positioned to illuminate the actual dashboard, seats,
+ * door panels, and center console from the GLB model.
  * ======================================================================== */
 export default function Lighting() {
   const choreo = useChoreography();
@@ -21,16 +22,17 @@ export default function Lighting() {
   const key = useRef<THREE.DirectionalLight>(null);
   const wheelLight = useRef<THREE.PointLight>(null);
 
-  // Interior refs
+  // Interior refs — positioned for the real G900 cabin
   const intOverhead = useRef<THREE.PointLight>(null);
   const intFillFront = useRef<THREE.PointLight>(null);
-  const intFillSide = useRef<THREE.PointLight>(null);
+  const intFillDriver = useRef<THREE.PointLight>(null);
+  const intFillPassenger = useRef<THREE.PointLight>(null);
   const intFillRear = useRef<THREE.PointLight>(null);
   const intScreenGlow = useRef<THREE.PointLight>(null);
   const intClusterGlow = useRef<THREE.PointLight>(null);
-  const intAmbientWarm = useRef<THREE.RectAreaLight | any>(null);
-  const intAmbientBlue = useRef<THREE.PointLight>(null);
   const intConsoleGlow = useRef<THREE.PointLight>(null);
+  const intDoorAmbient = useRef<THREE.PointLight>(null);
+  const intDashAccent = useRef<THREE.PointLight>(null);
 
   useFrame(() => {
     const s = choreo.current;
@@ -44,28 +46,42 @@ export default function Lighting() {
 
     // --- Interior ---
     const i = s.interiorFocus;
-    // Main overhead — soft warm white, positioned inside the cabin
-    if (intOverhead.current) intOverhead.current.intensity = i * 6;
-    // Front fill — slightly cool, simulates windshield light
-    if (intFillFront.current) intFillFront.current.intensity = i * 4.5;
-    // Side fill — warms the seats
-    if (intFillSide.current) intFillSide.current.intensity = i * 3.5;
-    // Rear fill — subtle, lifts shadows behind seats
+
+    // Main overhead — soft warm white, dome light position in cabin ceiling
+    if (intOverhead.current) intOverhead.current.intensity = i * 8;
+
+    // Front fill — windshield daylight, cool tone
+    if (intFillFront.current) intFillFront.current.intensity = i * 5;
+
+    // Driver side fill — warm, illuminates steering wheel and cluster
+    if (intFillDriver.current) intFillDriver.current.intensity = i * 4;
+
+    // Passenger side fill — softer, balances the cabin
+    if (intFillPassenger.current) intFillPassenger.current.intensity = i * 3;
+
+    // Rear fill — lifts area behind front seats
     if (intFillRear.current) intFillRear.current.intensity = i * 2.5;
-    // Screen glow — localized near dashboard screens
-    if (intScreenGlow.current) intScreenGlow.current.intensity = i * 5;
-    // Cluster screen — dedicated driver-side glow
-    if (intClusterGlow.current) intClusterGlow.current.intensity = i * 4.5;
-    // Console glow — center console area
-    if (intConsoleGlow.current) intConsoleGlow.current.intensity = i * 2.5;
-    // Ambient warm — subtle overall warm tint
-    if (intAmbientBlue.current) intAmbientBlue.current.intensity = i * 2;
+
+    // Infotainment screen glow — cool blue-white
+    if (intScreenGlow.current) intScreenGlow.current.intensity = i * 6;
+
+    // Instrument cluster glow — driver side
+    if (intClusterGlow.current) intClusterGlow.current.intensity = i * 5;
+
+    // Center console — warm accent
+    if (intConsoleGlow.current) intConsoleGlow.current.intensity = i * 3;
+
+    // Door ambient strips — subtle warm glow on door panels
+    if (intDoorAmbient.current) intDoorAmbient.current.intensity = i * 2.5 + Math.sin(Date.now() * 0.002) * 0.4;
+
+    // Dashboard accent — subtle wash across the dash surface
+    if (intDashAccent.current) intDashAccent.current.intensity = i * 3.5;
   });
 
   return (
     <>
       {/* ======== AMBIENT FILL ====================================== */}
-      <ambientLight intensity={0.1} />
+      <ambientLight intensity={0.08} />
 
       {/* ======== EXTERIOR STUDIO =================================== */}
       {/* Key light — warm directional */}
@@ -128,88 +144,109 @@ export default function Lighting() {
 
       {/* ======== INTERIOR LIGHTING RIG ============================= */}
       {/*
-        All interior lights live inside the cabin coordinate space
-        (group is at [0, 0.55, -0.4]). Positions below are world-space
-        offsets from that origin so they sit realistically within the cockpit.
+        Positions calibrated for the real G900 cabin geometry from the GLB.
+        Model is at scale 0.9, centered at origin, facing +Z.
+        Driver's seat is at approximately -X, passenger at +X.
+        Dashboard is toward +Z (front of vehicle).
       */}
 
-      {/* Overhead dome light — soft warm white, centered in cabin ceiling */}
+      {/* Overhead dome — centered in cabin ceiling */}
       <pointLight
         ref={intOverhead}
-        position={[0, 1.6, -0.25]}
-        distance={4}
+        position={[0, 1.55, -0.1]}
+        distance={4.5}
         decay={2}
         color="#f0e8d8"
         intensity={0}
       />
 
-      {/* Front fill — positioned at windshield height, cool tone simulating daylight through glass */}
+      {/* Front fill — windshield height, cool daylight tone */}
       <pointLight
         ref={intFillFront}
-        position={[0, 1.1, 0.7]}
-        distance={3.5}
+        position={[0, 1.25, 0.5]}
+        distance={4}
         decay={2}
         color="#d8e4f0"
         intensity={0}
       />
 
-      {/* Side fill — driver side, warm, lights up seats and door panels */}
+      {/* Driver side fill — illuminates steering wheel, cluster, pedals */}
       <pointLight
-        ref={intFillSide}
-        position={[-1.4, 0.85, 0]}
-        distance={3}
+        ref={intFillDriver}
+        position={[-0.5, 1.05, -0.2]}
+        distance={2.5}
         decay={2}
         color="#f0e0c8"
         intensity={0}
       />
 
-      {/* Rear fill — subtle, lifts the area behind seats */}
+      {/* Passenger side fill — balances cabin lighting */}
+      <pointLight
+        ref={intFillPassenger}
+        position={[0.5, 1.05, -0.2]}
+        distance={2.5}
+        decay={2}
+        color="#e8e0d4"
+        intensity={0}
+      />
+
+      {/* Rear fill — lifts the area behind front seats */}
       <pointLight
         ref={intFillRear}
-        position={[0, 0.8, -1.3]}
+        position={[0, 0.9, -1.4]}
         distance={3}
         decay={2}
         color="#e0d8d0"
         intensity={0}
       />
 
-      {/* Screen glow — localized near dashboard, cool blue tint */}
+      {/* Infotainment screen glow — cool blue-white, center dash */}
       <pointLight
         ref={intScreenGlow}
-        position={[0.2, 0.75, -0.7]}
+        position={[0.15, 1.05, 0.1]}
         distance={2.5}
         decay={2}
         color="#a0c0e0"
         intensity={0}
       />
 
-      {/* Cluster screen glow — driver side, warm-cool blend */}
+      {/* Instrument cluster glow — driver side */}
       <pointLight
         ref={intClusterGlow}
-        position={[-0.42, 0.78, -0.7]}
+        position={[-0.4, 1.1, -0.15]}
         distance={2}
         decay={2}
         color="#c0d4f0"
         intensity={0}
       />
 
-      {/* Console glow — center area, warm */}
+      {/* Center console — warm accent near shifter */}
       <pointLight
         ref={intConsoleGlow}
-        position={[0, 0.5, -0.1]}
-        distance={1.5}
+        position={[0, 0.65, -0.1]}
+        distance={1.8}
         decay={2}
         color="#ffe8cc"
         intensity={0}
       />
 
-      {/* Warm ambient accent — near door ambient strips */}
+      {/* Door ambient — warm glow on driver door panel */}
       <pointLight
-        ref={intAmbientBlue as any}
-        position={[-0.6, 0.5, -0.3]}
+        ref={intDoorAmbient}
+        position={[-1.0, 0.75, -0.1]}
         distance={2}
         decay={2}
         color="#ff8833"
+        intensity={0}
+      />
+
+      {/* Dashboard accent — washes across dash surface */}
+      <pointLight
+        ref={intDashAccent}
+        position={[0, 1.15, 0.3]}
+        distance={3}
+        decay={2}
+        color="#f4ece0"
         intensity={0}
       />
     </>
