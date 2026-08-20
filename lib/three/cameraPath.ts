@@ -55,20 +55,26 @@ export const CAMERA_KEYFRAMES: CamKeyframe[] = [
   { t: 0.57, pos: P(2.85, 0.95, 0.9), look: P(1.6, 0.62, 0), fov: 30, bodyOpacity: 0.08, wheelFocus: 1, interiorFocus: 0, carbonFocus: 0, headlight: 0.05, fog: 0.02 },
   { t: 0.6, pos: P(2.2, 1.4, 2.4), look: P(0.3, 0.9, 0), fov: 30, bodyOpacity: 0.05, wheelFocus: 0, interiorFocus: 0, carbonFocus: 0, headlight: 0, fog: 0.02 },
 
-  // 06 INTERIOR — cinematic physical entry through the driver's door
-  // The G900 GLB is at scale 0.9. Driver's side is -X.
-  // Stage 1 (0.60–0.62): Outside driver's door, looking in — exterior fades
-  // Stage 2 (0.62–0.64): Push through the door opening — crossfade
-  // Stage 3 (0.64–0.66): Settle into driver's eye position — interior fully visible
-  // Stage 4 (0.66–0.69): Slow pan — steering wheel, cluster, dash
-  { t: 0.60, pos: P(-2.0, 1.35, 1.2),  look: P(-0.5, 1.0, -0.2), fov: 32, bodyOpacity: 0.4, wheelFocus: 0, interiorFocus: 0.05, carbonFocus: 0, headlight: 0, fog: 0.02 },
-  { t: 0.62, pos: P(-1.2, 1.2, 0.8),   look: P(-0.4, 1.0, -0.4), fov: 36, bodyOpacity: 0.15, wheelFocus: 0, interiorFocus: 0.3, carbonFocus: 0, headlight: 0, fog: 0.02 },
-  { t: 0.64, pos: P(-0.5, 1.15, 0.3),   look: P(-0.2, 1.0, -0.8), fov: 40, bodyOpacity: 0, wheelFocus: 0, interiorFocus: 0.7, carbonFocus: 0, headlight: 0, fog: 0.02 },
-  { t: 0.66, pos: P(-0.35, 1.08, -0.1),  look: P(-0.1, 0.95, -1.0), fov: 38, bodyOpacity: 0, wheelFocus: 0, interiorFocus: 1, carbonFocus: 0, headlight: 0, fog: 0.02 },
-  // Slow pan toward center dash / steering wheel detail
-  { t: 0.675, pos: P(-0.25, 1.05, -0.15), look: P(0.1, 0.9, -1.1), fov: 36, bodyOpacity: 0, wheelFocus: 0, interiorFocus: 1, carbonFocus: 0, headlight: 0, fog: 0.02 },
-  // Final interior moment — wide dash view before transitioning out
-  { t: 0.69, pos: P(-0.15, 1.02, -0.2),  look: P(0.0, 0.88, -1.2), fov: 34, bodyOpacity: 0, wheelFocus: 0, interiorFocus: 1, carbonFocus: 0, headlight: 0, fog: 0.02 },
+  // 06 INTERIOR — cinematic entry through the driver's door into the FULL cockpit
+  // G900 GLB at scale 0.9. Car faces +Z. Driver's side is -X.
+  // Camera enters from driver's side, then pulls back to reveal the full cabin
+  // width — both seats, full dash, both door panels, steering wheel, center console.
+  //
+  // Stage 1 (0.60–0.62): Outside driver's door — body starts fading
+  // Stage 2 (0.62–0.63): Push through the door opening — crossfade
+  // Stage 3 (0.63–0.65): Inside the cabin, pulling back wide to show the FULL interior
+  // Stage 4 (0.65–0.67): Wide cockpit shot — both seats, full dash, both doors visible
+  // Stage 5 (0.67–0.69): Slow cinematic pan across the whole dashboard
+  { t: 0.60, pos: P(-1.8, 1.4, 0.6),    look: P(0, 1.0, -0.3), fov: 38, bodyOpacity: 0.4, wheelFocus: 0, interiorFocus: 0.05, carbonFocus: 0, headlight: 0, fog: 0.02 },
+  { t: 0.62, pos: P(-1.0, 1.25, 0.2),   look: P(0, 1.0, -0.5), fov: 42, bodyOpacity: 0.15, wheelFocus: 0, interiorFocus: 0.3, carbonFocus: 0, headlight: 0, fog: 0.02 },
+  // Pull back into center of cabin — reveal full width
+  { t: 0.64, pos: P(-0.1, 1.35, 0.1),   look: P(0, 0.95, -0.8), fov: 52, bodyOpacity: 0, wheelFocus: 0, interiorFocus: 0.8, carbonFocus: 0, headlight: 0, fog: 0.02 },
+  // Wide cockpit — centered, both seats visible, both door panels, full dash
+  { t: 0.66, pos: P(0, 1.3, -0.05),     look: P(0, 0.9, -0.9), fov: 50, bodyOpacity: 0, wheelFocus: 0, interiorFocus: 1, carbonFocus: 0, headlight: 0, fog: 0.02 },
+  // Slow pan — slight drift right to show passenger side, steering wheel detail
+  { t: 0.675, pos: P(0.15, 1.25, -0.1), look: P(0, 0.88, -0.95), fov: 48, bodyOpacity: 0, wheelFocus: 0, interiorFocus: 1, carbonFocus: 0, headlight: 0, fog: 0.02 },
+  // Final interior — wide pull back, full cabin on display
+  { t: 0.69, pos: P(0, 1.2, -0.15),     look: P(0, 0.85, -0.85), fov: 50, bodyOpacity: 0, wheelFocus: 0, interiorFocus: 1, carbonFocus: 0, headlight: 0, fog: 0.02 },
 
   // 07 SPECIFICATIONS — return to a clean, confident 3/4 hero shot
   { t: 0.72, pos: P(4.2, 1.3, 3.6), look: P(0, 0.7, 0), fov: 32, bodyOpacity: 0.6, wheelFocus: 0, interiorFocus: 0, carbonFocus: 0, headlight: 0.5, fog: 0.1 },
