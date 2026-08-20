@@ -40,7 +40,7 @@ function ensureAudio() {
   }
   audioCtx = new AudioContext();
   masterGain = audioCtx.createGain();
-  masterGain.gain.value = 0.8;
+  masterGain.gain.value = 1.0;
   masterGain.connect(audioCtx.destination);
 }
 
@@ -83,7 +83,7 @@ function playChime(ctx: AudioContext, dest: AudioNode, time: number) {
   osc1.frequency.exponentialRampToValueAtTime(1320, time + 0.08);
   osc1.frequency.exponentialRampToValueAtTime(1100, time + 0.2);
   gain1.gain.setValueAtTime(0, time);
-  gain1.gain.linearRampToValueAtTime(0.15, time + 0.02);
+  gain1.gain.linearRampToValueAtTime(0.3, time + 0.02);
   gain1.gain.exponentialRampToValueAtTime(0.001, time + 0.4);
   osc1.connect(gain1);
   gain1.connect(dest);
@@ -97,7 +97,7 @@ function playChime(ctx: AudioContext, dest: AudioNode, time: number) {
   osc2.frequency.setValueAtTime(1320, time + 0.15);
   osc2.frequency.exponentialRampToValueAtTime(1760, time + 0.23);
   gain2.gain.setValueAtTime(0, time + 0.15);
-  gain2.gain.linearRampToValueAtTime(0.1, time + 0.17);
+  gain2.gain.linearRampToValueAtTime(0.2, time + 0.17);
   gain2.gain.exponentialRampToValueAtTime(0.001, time + 0.6);
   osc2.connect(gain2);
   gain2.connect(dest);
@@ -117,8 +117,8 @@ function playEngineStart(ctx: AudioContext, dest: AudioNode, time: number) {
   starterFilter.type = "lowpass";
   starterFilter.frequency.value = 200;
   starterGain.gain.setValueAtTime(0, time);
-  starterGain.gain.linearRampToValueAtTime(0.12, time + 0.05);
-  starterGain.gain.linearRampToValueAtTime(0.18, time + 0.4);
+  starterGain.gain.linearRampToValueAtTime(0.25, time + 0.05);
+  starterGain.gain.linearRampToValueAtTime(0.35, time + 0.4);
   starterGain.gain.linearRampToValueAtTime(0, time + 0.6);
   starterOsc.connect(starterFilter);
   starterFilter.connect(starterGain);
@@ -139,9 +139,9 @@ function playEngineStart(ctx: AudioContext, dest: AudioNode, time: number) {
   engineFilter.frequency.linearRampToValueAtTime(300, time + 0.8);
   engineFilter.frequency.linearRampToValueAtTime(180, time + 1.5);
   engineGain.gain.setValueAtTime(0, time + 0.5);
-  engineGain.gain.linearRampToValueAtTime(0.2, time + 0.7);
-  engineGain.gain.linearRampToValueAtTime(0.12, time + 1.2);
-  engineGain.gain.linearRampToValueAtTime(0.06, time + 2.0);
+  engineGain.gain.linearRampToValueAtTime(0.4, time + 0.7);
+  engineGain.gain.linearRampToValueAtTime(0.25, time + 1.2);
+  engineGain.gain.linearRampToValueAtTime(0.12, time + 2.0);
   engineOsc.connect(engineFilter);
   engineFilter.connect(engineGain);
   engineGain.connect(dest);
@@ -155,7 +155,7 @@ function playEngineStart(ctx: AudioContext, dest: AudioNode, time: number) {
   subOsc.frequency.setValueAtTime(35, time + 0.55);
   subOsc.frequency.exponentialRampToValueAtTime(25, time + 1.0);
   subGain.gain.setValueAtTime(0, time + 0.55);
-  subGain.gain.linearRampToValueAtTime(0.12, time + 0.6);
+  subGain.gain.linearRampToValueAtTime(0.3, time + 0.6);
   subGain.gain.exponentialRampToValueAtTime(0.001, time + 1.5);
   subOsc.connect(subGain);
   subGain.connect(dest);
@@ -167,7 +167,6 @@ export default function InteriorSound() {
   const choreo = useChoreography();
   const ambienceGain = useRef<GainNode | null>(null);
   const hasPlayedChime = useRef(false);
-  const hasPlayedEngine = useRef(false);
 
   useEffect(() => {
     const onInteraction = () => {
@@ -197,7 +196,7 @@ export default function InteriorSound() {
     const i = choreo.current.interiorFocus;
 
     // Fade ambience with interior focus
-    const target = i * 0.18;
+    const target = i * 0.4;
     ambienceGain.current.gain.linearRampToValueAtTime(
       target,
       audioCtx.currentTime + 0.1
@@ -210,15 +209,6 @@ export default function InteriorSound() {
     }
     if (i < 0.2) {
       hasPlayedChime.current = false;
-    }
-
-    // Engine startup — once when interior is fully visible
-    if (i > 0.85 && !hasPlayedEngine.current) {
-      hasPlayedEngine.current = true;
-      playEngineStart(audioCtx, masterGain, audioCtx.currentTime);
-    }
-    if (i < 0.3) {
-      hasPlayedEngine.current = false;
     }
   });
 

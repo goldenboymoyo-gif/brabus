@@ -24,7 +24,7 @@ export function setScrollMuted(muted: boolean) {
   isMuted = muted;
   if (masterGain) {
     masterGain.gain.linearRampToValueAtTime(
-      muted ? 0 : 0.5,
+      muted ? 0 : 1,
       (audioCtx?.currentTime ?? 0) + 0.2
     );
   }
@@ -34,7 +34,7 @@ function ensureAudio() {
   if (audioCtx) return;
   audioCtx = new AudioContext();
   masterGain = audioCtx.createGain();
-  masterGain.gain.value = 0.5;
+  masterGain.gain.value = 1.0;
   masterGain.connect(audioCtx.destination);
 }
 
@@ -59,7 +59,7 @@ function playWhoosh(ctx: AudioContext, dest: AudioNode, velocity: number) {
   filter.Q.value = 1.5;
 
   const gain = ctx.createGain();
-  const vol = Math.min(0.12, 0.03 + Math.abs(velocity) * 0.08);
+  const vol = Math.min(0.35, 0.1 + Math.abs(velocity) * 0.25);
   gain.gain.setValueAtTime(0, now);
   gain.gain.linearRampToValueAtTime(vol, now + 0.02);
   gain.gain.exponentialRampToValueAtTime(0.001, now + duration);
@@ -80,7 +80,7 @@ function playTick(ctx: AudioContext, dest: AudioNode) {
   osc.frequency.setValueAtTime(2400, now);
   osc.frequency.exponentialRampToValueAtTime(800, now + 0.04);
   gain.gain.setValueAtTime(0, now);
-  gain.gain.linearRampToValueAtTime(0.08, now + 0.005);
+  gain.gain.linearRampToValueAtTime(0.2, now + 0.005);
   gain.gain.exponentialRampToValueAtTime(0.001, now + 0.06);
   osc.connect(gain);
   gain.connect(dest);

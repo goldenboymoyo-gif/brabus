@@ -2,6 +2,7 @@
 
 import { useState, useRef, useEffect } from "react";
 import { engineState } from "@/lib/three/sharedState";
+import { useActiveSceneIndex } from "@/lib/animation/activeSceneStore";
 
 /* ========================================================================
  * Engine Start Button
@@ -23,7 +24,7 @@ function ensureAudio() {
   }
   audioCtx = new AudioContext();
   masterGain = audioCtx.createGain();
-  masterGain.gain.value = 0.5;
+  masterGain.gain.value = 1.0;
   masterGain.connect(audioCtx.destination);
 }
 
@@ -40,8 +41,8 @@ function playEngineStart(ctx: AudioContext, dest: AudioNode) {
   starterFilter.type = "lowpass";
   starterFilter.frequency.value = 180;
   starterGain.gain.setValueAtTime(0, now);
-  starterGain.gain.linearRampToValueAtTime(0.06, now + 0.05);
-  starterGain.gain.linearRampToValueAtTime(0.08, now + 0.4);
+  starterGain.gain.linearRampToValueAtTime(0.15, now + 0.05);
+  starterGain.gain.linearRampToValueAtTime(0.22, now + 0.4);
   starterGain.gain.linearRampToValueAtTime(0, now + 0.6);
   starter.connect(starterFilter);
   starterFilter.connect(starterGain);
@@ -62,9 +63,9 @@ function playEngineStart(ctx: AudioContext, dest: AudioNode) {
   engineFilter.frequency.linearRampToValueAtTime(250, now + 0.8);
   engineFilter.frequency.linearRampToValueAtTime(140, now + 2.0);
   engineGain.gain.setValueAtTime(0, now + 0.5);
-  engineGain.gain.linearRampToValueAtTime(0.1, now + 0.7);
-  engineGain.gain.linearRampToValueAtTime(0.06, now + 1.5);
-  engineGain.gain.linearRampToValueAtTime(0.03, now + 3.0);
+  engineGain.gain.linearRampToValueAtTime(0.25, now + 0.7);
+  engineGain.gain.linearRampToValueAtTime(0.15, now + 1.5);
+  engineGain.gain.linearRampToValueAtTime(0.08, now + 3.0);
   engine.connect(engineFilter);
   engineFilter.connect(engineGain);
   engineGain.connect(dest);
@@ -78,7 +79,7 @@ function playEngineStart(ctx: AudioContext, dest: AudioNode) {
   sub.frequency.setValueAtTime(30, now + 0.55);
   sub.frequency.exponentialRampToValueAtTime(20, now + 1.0);
   subGain.gain.setValueAtTime(0, now + 0.55);
-  subGain.gain.linearRampToValueAtTime(0.15, now + 0.6);
+  subGain.gain.linearRampToValueAtTime(0.35, now + 0.6);
   subGain.gain.exponentialRampToValueAtTime(0.001, now + 1.5);
   sub.connect(subGain);
   subGain.connect(dest);
@@ -93,7 +94,7 @@ function playEngineStop(ctx: AudioContext, dest: AudioNode) {
   osc.type = "sawtooth";
   osc.frequency.setValueAtTime(55, now);
   osc.frequency.linearRampToValueAtTime(20, now + 0.5);
-  gain.gain.setValueAtTime(0.08, now);
+  gain.gain.setValueAtTime(0.2, now);
   gain.gain.exponentialRampToValueAtTime(0.001, now + 0.6);
   osc.connect(gain);
   gain.connect(dest);
@@ -104,6 +105,10 @@ function playEngineStop(ctx: AudioContext, dest: AudioNode) {
 export default function EngineStart() {
   const [started, setStarted] = useState(false);
   const [vibrating, setVibrating] = useState(false);
+  const activeIndex = useActiveSceneIndex();
+
+  // Only show during interior scene (index 5) and later
+  const isVisible = activeIndex >= 5;
 
   const toggle = () => {
     ensureAudio();
@@ -124,6 +129,8 @@ export default function EngineStart() {
       if (navigator.vibrate) navigator.vibrate(50);
     }
   };
+
+  if (!isVisible) return null;
 
   return (
     <div className="fixed bottom-6 left-6 z-50 md:bottom-auto md:top-1/2 md:-translate-y-1/2 md:left-auto md:right-6">
