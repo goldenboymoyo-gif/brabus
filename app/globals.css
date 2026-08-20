@@ -1,0 +1,69 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  color-scheme: dark;
+}
+
+html {
+  scroll-behavior: smooth;
+  background: #000;
+}
+
+::selection {
+  background: #f4f3ef;
+  color: #000;
+}
+
+/* Slim, unobtrusive scrollbar so it doesn't fight the editorial chrome */
+::-webkit-scrollbar {
+  width: 5px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: rgba(244, 243, 239, 0.22);
+}
+
+@layer utilities {
+  .tracking-label {
+    letter-spacing: 0.28em;
+  }
+
+  .text-stroke {
+    -webkit-text-stroke: 1px rgba(244, 243, 239, 0.5);
+  }
+
+  .fade-mask-b {
+    mask-image: linear-gradient(to bottom, black 70%, transparent 100%);
+  }
+
+  .grain::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    opacity: 0.035;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  }
+}
+
+.hairline {
+  background: linear-gradient(
+    to right,
+    rgba(244, 243, 239, 0),
+    rgba(244, 243, 239, 0.28),
+    rgba(244, 243, 239, 0)
+  );
+  height: 1px;
+}
+
+.btn-ghost {
+  @apply inline-flex items-center justify-center gap-3 border border-line px-7 py-3 text-[11px] font-medium tracking-label text-bone transition-all duration-500 ease-cinematic hover:border-bone hover:bg-bone hover:text-black;
+}
+
+.eyebrow {
+  @apply text-[11px] font-medium tracking-label text-ash;
+}

@@ -1,0 +1,17 @@
+node_modules
+.next
+out
+.DS_Store
+*.log
+next-env.d.ts
+tsconfig.tsbuildinfo
+
+# Large binary assets — keep repo lightweight
+public/models/**/*.glb
+public/models/**/*.zip
+public/models/**/*.fbx
+public/models/**/*.usdz
+public/models/**/*.png
+public/models/**/*.jpeg
+textures/
+source/
