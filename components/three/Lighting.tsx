@@ -4,25 +4,29 @@ import { useRef } from "react";
 import { useFrame } from "@react-three/fiber";
 import * as THREE from "three";
 import { useChoreography } from "@/lib/three/choreography";
+import { engineState } from "@/lib/three/sharedState";
 
 /* ========================================================================
  * Studio + Interior Lighting Rig
  * ---------------------------------------------------------------------------
- * Exterior: dark studio with hard key, cool rim, weak fill, headlights.
- * Interior: cinematic multi-source lighting designed for the real G900
- * cabin geometry — positioned to illuminate the actual dashboard, seats,
- * door panels, and center console from the GLB model.
+ * Positions calibrated to meter-scale GLB coordinates:
+ *   Steering wheel: (0.41, 1.25, 0.36)
+ *   Dashboard:      (~0, 1.1, 0.45)
+ *   Gauges:         (0.43, 1.33, 0.63)
+ *   Driver seat:    (0.41, 1.22, -0.13)
+ *   Passenger seat: (-0.42, 1.21, -0.13)
+ *   FL door: (0.75, 1.11, 0.35)   FR door: (-0.75, 1.10, 0.35)
+ *   Rear seats: (-0.005, 1.03, -0.87)
+ *   Headlights:     (~±0.62, 0.78, 2.05)
  * ======================================================================== */
 export default function Lighting() {
   const choreo = useChoreography();
 
-  // Exterior refs
-  const headlightL = useRef<THREE.PointLight>(null);
-  const headlightR = useRef<THREE.PointLight>(null);
+  const headlightL = useRef<THREE.SpotLight>(null);
+  const headlightR = useRef<THREE.SpotLight>(null);
   const key = useRef<THREE.DirectionalLight>(null);
   const wheelLight = useRef<THREE.PointLight>(null);
 
-  // Interior refs — positioned for the real G900 cabin
   const intOverhead = useRef<THREE.PointLight>(null);
   const intFillFront = useRef<THREE.PointLight>(null);
   const intFillDriver = useRef<THREE.PointLight>(null);
@@ -36,219 +40,76 @@ export default function Lighting() {
 
   useFrame(() => {
     const s = choreo.current;
+    const isEngineOn = engineState.current;
+    const baseHl = isEngineOn ? 3.5 : 1.0;
 
-    // --- Exterior ---
-    const headlightIntensity = 1.0 + s.headlight * 3.2;
-    if (headlightL.current) headlightL.current.intensity = headlightIntensity;
-    if (headlightR.current) headlightR.current.intensity = headlightIntensity;
+    // Exterior headlights — spotlights that project forward
+    const hlIntensity = baseHl + s.headlight * 3.0;
+    if (headlightL.current) headlightL.current.intensity = hlIntensity;
+    if (headlightR.current) headlightR.current.intensity = hlIntensity;
     if (key.current) key.current.intensity = 1.35 + (1 - s.fog) * 0.6;
     if (wheelLight.current) wheelLight.current.intensity = s.wheelFocus * 2.6;
 
-    // --- Interior ---
+    // Interior
     const i = s.interiorFocus;
-
-    // Main overhead — soft warm white, dome light position in cabin ceiling
     if (intOverhead.current) intOverhead.current.intensity = i * 8;
-
-    // Front fill — windshield daylight, cool tone
     if (intFillFront.current) intFillFront.current.intensity = i * 5;
-
-    // Driver side fill — warm, illuminates steering wheel and cluster
     if (intFillDriver.current) intFillDriver.current.intensity = i * 4;
-
-    // Passenger side fill — softer, balances the cabin
     if (intFillPassenger.current) intFillPassenger.current.intensity = i * 3;
-
-    // Rear fill — lifts area behind front seats
     if (intFillRear.current) intFillRear.current.intensity = i * 2.5;
-
-    // Infotainment screen glow — cool blue-white
     if (intScreenGlow.current) intScreenGlow.current.intensity = i * 6;
-
-    // Instrument cluster glow — driver side
     if (intClusterGlow.current) intClusterGlow.current.intensity = i * 5;
-
-    // Center console — warm accent
     if (intConsoleGlow.current) intConsoleGlow.current.intensity = i * 3;
-
-    // Door ambient strips — subtle warm glow on door panels
     if (intDoorAmbient.current) intDoorAmbient.current.intensity = i * 2.5 + Math.sin(Date.now() * 0.002) * 0.4;
-
-    // Dashboard accent — subtle wash across the dash surface
     if (intDashAccent.current) intDashAccent.current.intensity = i * 3.5;
   });
 
   return (
     <>
-      {/* ======== AMBIENT FILL ====================================== */}
       <ambientLight intensity={0.08} />
 
-      {/* ======== EXTERIOR STUDIO =================================== */}
-      {/* Key light — warm directional */}
-      <directionalLight
-        ref={key}
-        position={[6, 8, 4]}
-        intensity={1.4}
-        color="#f4f3ef"
-        castShadow
-        shadow-mapSize-width={1024}
-        shadow-mapSize-height={1024}
-        shadow-camera-near={0.5}
-        shadow-camera-far={30}
-        shadow-camera-left={-6}
-        shadow-camera-right={6}
-        shadow-camera-top={6}
-        shadow-camera-bottom={-6}
-        shadow-bias={-0.002}
-      />
-      {/* Rim light — cool, carves silhouette */}
-      <directionalLight
-        position={[-8, 3, -6]}
-        intensity={0.5}
-        color="#8fa3b0"
-      />
-      {/* Back fill — ensures rear isn't crushed to black */}
-      <directionalLight
-        position={[0, 4, -8]}
-        intensity={0.9}
-        color="#ffffff"
-      />
+      {/* EXTERIOR STUDIO */}
+      <directionalLight ref={key} position={[6, 8, 4]} intensity={1.4} color="#f4f3ef"
+        castShadow shadow-mapSize-width={1024} shadow-mapSize-height={1024}
+        shadow-camera-near={0.5} shadow-camera-far={30}
+        shadow-camera-left={-6} shadow-camera-right={6}
+        shadow-camera-top={6} shadow-camera-bottom={-6} shadow-bias={-0.002} />
+      <directionalLight position={[-8, 3, -6]} intensity={0.5} color="#8fa3b0" />
+      <directionalLight position={[0, 4, -8]} intensity={0.9} color="#ffffff" />
 
-      {/* ======== HEADLIGHTS ========================================= */}
-      <pointLight
-        ref={headlightL}
-        position={[-0.62, 0.78, 2.05]}
-        distance={7}
-        decay={2}
-        color="#eaf3ff"
-        intensity={1.2}
-      />
-      <pointLight
-        ref={headlightR}
-        position={[0.62, 0.78, 2.05]}
-        distance={7}
-        decay={2}
-        color="#eaf3ff"
-        intensity={1.2}
-      />
+      {/* HEADLIGHT SPOTS — project forward from the car's front */}
+      <spotLight ref={headlightL} position={[-0.62, 0.78, 2.05]}
+        target-position={[-0.4, 0.5, 8]} angle={0.4} penumbra={0.5}
+        distance={14} decay={2} color="#eaf3ff" intensity={3.5} />
+      <spotLight ref={headlightR} position={[0.62, 0.78, 2.05]}
+        target-position={[0.4, 0.5, 8]} angle={0.4} penumbra={0.5}
+        distance={14} decay={2} color="#eaf3ff" intensity={3.5} />
 
-      {/* ======== WHEEL SCENE ACCENT ================================= */}
-      <pointLight
-        ref={wheelLight}
-        position={[2.6, 1.6, 1.2]}
-        distance={6}
-        decay={2}
-        color="#f4f3ef"
-        intensity={0}
-      />
+      {/* WHEEL SCENE ACCENT */}
+      <pointLight ref={wheelLight} position={[2.6, 1.6, 1.2]} distance={6} decay={2} color="#f4f3ef" intensity={0} />
 
-      {/* ======== INTERIOR LIGHTING RIG ============================= */}
-      {/*
-        Positions calibrated for the real G900 cabin geometry from the GLB.
-        Model is at scale 0.9, centered at origin, facing +Z.
-        Driver's seat is at approximately -X, passenger at +X.
-        Dashboard is toward +Z (front of vehicle).
-      */}
+      {/* INTERIOR LIGHTING — positioned for real G900 cabin (meter scale) */}
 
-      {/* Overhead dome — centered in cabin ceiling */}
-      <pointLight
-        ref={intOverhead}
-        position={[0, 1.55, -0.1]}
-        distance={4.5}
-        decay={2}
-        color="#f0e8d8"
-        intensity={0}
-      />
-
-      {/* Front fill — windshield height, cool daylight tone */}
-      <pointLight
-        ref={intFillFront}
-        position={[0, 1.25, 0.5]}
-        distance={4}
-        decay={2}
-        color="#d8e4f0"
-        intensity={0}
-      />
-
-      {/* Driver side fill — illuminates steering wheel, cluster, pedals */}
-      <pointLight
-        ref={intFillDriver}
-        position={[-0.5, 1.05, -0.2]}
-        distance={2.5}
-        decay={2}
-        color="#f0e0c8"
-        intensity={0}
-      />
-
-      {/* Passenger side fill — balances cabin lighting */}
-      <pointLight
-        ref={intFillPassenger}
-        position={[0.5, 1.05, -0.2]}
-        distance={2.5}
-        decay={2}
-        color="#e8e0d4"
-        intensity={0}
-      />
-
-      {/* Rear fill — lifts the area behind front seats */}
-      <pointLight
-        ref={intFillRear}
-        position={[0, 0.9, -1.4]}
-        distance={3}
-        decay={2}
-        color="#e0d8d0"
-        intensity={0}
-      />
-
-      {/* Infotainment screen glow — cool blue-white, center dash */}
-      <pointLight
-        ref={intScreenGlow}
-        position={[0.15, 1.05, 0.1]}
-        distance={2.5}
-        decay={2}
-        color="#a0c0e0"
-        intensity={0}
-      />
-
-      {/* Instrument cluster glow — driver side */}
-      <pointLight
-        ref={intClusterGlow}
-        position={[-0.4, 1.1, -0.15]}
-        distance={2}
-        decay={2}
-        color="#c0d4f0"
-        intensity={0}
-      />
-
-      {/* Center console — warm accent near shifter */}
-      <pointLight
-        ref={intConsoleGlow}
-        position={[0, 0.65, -0.1]}
-        distance={1.8}
-        decay={2}
-        color="#ffe8cc"
-        intensity={0}
-      />
-
-      {/* Door ambient — warm glow on driver door panel */}
-      <pointLight
-        ref={intDoorAmbient}
-        position={[-1.0, 0.75, -0.1]}
-        distance={2}
-        decay={2}
-        color="#ff8833"
-        intensity={0}
-      />
-
-      {/* Dashboard accent — washes across dash surface */}
-      <pointLight
-        ref={intDashAccent}
-        position={[0, 1.15, 0.3]}
-        distance={3}
-        decay={2}
-        color="#f4ece0"
-        intensity={0}
-      />
+      {/* Overhead dome — cabin ceiling center */}
+      <pointLight ref={intOverhead} position={[0, 1.55, -0.1]} distance={2.5} decay={2} color="#f0e8d8" intensity={0} />
+      {/* Front fill — windshield */}
+      <pointLight ref={intFillFront} position={[0, 1.35, 0.5]} distance={2.5} decay={2} color="#d8e4f0" intensity={0} />
+      {/* Driver side — steering wheel & cluster */}
+      <pointLight ref={intFillDriver} position={[0.35, 1.15, 0.2]} distance={1.8} decay={2} color="#f0e0c8" intensity={0} />
+      {/* Passenger side */}
+      <pointLight ref={intFillPassenger} position={[-0.35, 1.15, 0.2]} distance={1.8} decay={2} color="#e8e0d4" intensity={0} />
+      {/* Rear fill */}
+      <pointLight ref={intFillRear} position={[0, 1.0, -0.6]} distance={2} decay={2} color="#e0d8d0" intensity={0} />
+      {/* Infotainment screen — center dash */}
+      <pointLight ref={intScreenGlow} position={[0, 1.15, 0.55]} distance={1.5} decay={2} color="#a0c0e0" intensity={0} />
+      {/* Instrument cluster — driver side */}
+      <pointLight ref={intClusterGlow} position={[0.38, 1.25, 0.55]} distance={1.2} decay={2} color="#c0d4f0" intensity={0} />
+      {/* Center console — shifter area */}
+      <pointLight ref={intConsoleGlow} position={[0, 0.85, 0.1]} distance={1.2} decay={2} color="#ffe8cc" intensity={0} />
+      {/* Door ambient — driver door panel */}
+      <pointLight ref={intDoorAmbient} position={[0.7, 1.0, 0.15]} distance={1.5} decay={2} color="#ff8833" intensity={0} />
+      {/* Dashboard accent */}
+      <pointLight ref={intDashAccent} position={[0, 1.2, 0.45]} distance={2} decay={2} color="#f4ece0" intensity={0} />
     </>
   );
 }

@@ -56,25 +56,31 @@ export const CAMERA_KEYFRAMES: CamKeyframe[] = [
   { t: 0.6, pos: P(2.2, 1.4, 2.4), look: P(0.3, 0.9, 0), fov: 30, bodyOpacity: 0.05, wheelFocus: 0, interiorFocus: 0, carbonFocus: 0, headlight: 0, fog: 0.02 },
 
   // 06 INTERIOR — cinematic entry through the driver's door into the FULL cockpit
-  // G900 GLB at scale 0.9. Car faces +Z. Driver's side is -X.
-  // Camera enters from driver's side, then pulls back to reveal the full cabin
-  // width — both seats, full dash, both door panels, steering wheel, center console.
+  // GLB interior positions (meters, after hierarchy transform):
+  //   Steering wheel: (0.41, 1.25, 0.36)  — driver's side, forward
+  //   Driver seat:    (0.41, 1.22, -0.13)
+  //   Passenger seat: (-0.42, 1.21, -0.13)
+  //   Dashboard/gauges: (0.43, 1.33, 0.63) — forward of seats
+  //   Rear seats:     (-0.005, 1.03, -0.87) — back of cabin
+  //   FL door: (0.75, 1.11, 0.35)   FR door: (-0.75, 1.10, 0.35)
+  //
+  // Camera MUST look toward +Z (forward at dash), NOT -Z (rear seats).
   //
   // Stage 1 (0.60–0.62): Outside driver's door — body starts fading
-  // Stage 2 (0.62–0.63): Push through the door opening — crossfade
-  // Stage 3 (0.63–0.65): Inside the cabin, pulling back wide to show the FULL interior
-  // Stage 4 (0.65–0.67): Wide cockpit shot — both seats, full dash, both doors visible
-  // Stage 5 (0.67–0.69): Slow cinematic pan across the whole dashboard
-  { t: 0.60, pos: P(-1.8, 1.4, 0.6),    look: P(0, 1.0, -0.3), fov: 38, bodyOpacity: 0.4, wheelFocus: 0, interiorFocus: 0.05, carbonFocus: 0, headlight: 0, fog: 0.02 },
-  { t: 0.62, pos: P(-1.0, 1.25, 0.2),   look: P(0, 1.0, -0.5), fov: 42, bodyOpacity: 0.15, wheelFocus: 0, interiorFocus: 0.3, carbonFocus: 0, headlight: 0, fog: 0.02 },
-  // Pull back into center of cabin — reveal full width
-  { t: 0.64, pos: P(-0.1, 1.35, 0.1),   look: P(0, 0.95, -0.8), fov: 52, bodyOpacity: 0, wheelFocus: 0, interiorFocus: 0.8, carbonFocus: 0, headlight: 0, fog: 0.02 },
-  // Wide cockpit — centered, both seats visible, both door panels, full dash
-  { t: 0.66, pos: P(0, 1.3, -0.05),     look: P(0, 0.9, -0.9), fov: 50, bodyOpacity: 0, wheelFocus: 0, interiorFocus: 1, carbonFocus: 0, headlight: 0, fog: 0.02 },
-  // Slow pan — slight drift right to show passenger side, steering wheel detail
-  { t: 0.675, pos: P(0.15, 1.25, -0.1), look: P(0, 0.88, -0.95), fov: 48, bodyOpacity: 0, wheelFocus: 0, interiorFocus: 1, carbonFocus: 0, headlight: 0, fog: 0.02 },
-  // Final interior — wide pull back, full cabin on display
-  { t: 0.69, pos: P(0, 1.2, -0.15),     look: P(0, 0.85, -0.85), fov: 50, bodyOpacity: 0, wheelFocus: 0, interiorFocus: 1, carbonFocus: 0, headlight: 0, fog: 0.02 },
+  // Stage 2 (0.62–0.64): Push through the door — crossfade interior in
+  // Stage 3 (0.64–0.66): Wide cockpit — behind seats, looking forward at full dash
+  // Stage 4 (0.66–0.675): Driver's perspective — closer to steering wheel & gauges
+  // Stage 5 (0.675–0.69): Slow pan across center dash & passenger side
+  { t: 0.60, pos: P(-1.6, 1.3, 0.2),    look: P(0.2, 1.15, 0.3), fov: 36, bodyOpacity: 0.4, wheelFocus: 0, interiorFocus: 0.05, carbonFocus: 0, headlight: 0, fog: 0.02 },
+  { t: 0.62, pos: P(-0.8, 1.22, -0.05),  look: P(0.2, 1.12, 0.35), fov: 40, bodyOpacity: 0.15, wheelFocus: 0, interiorFocus: 0.3, carbonFocus: 0, headlight: 0, fog: 0.02 },
+  // Wide cockpit — behind front seats, looking FORWARD at full dash, both seats, both doors
+  { t: 0.64, pos: P(0, 1.3, -0.35),     look: P(0, 1.1, 0.35), fov: 52, bodyOpacity: 0, wheelFocus: 0, interiorFocus: 0.8, carbonFocus: 0, headlight: 0, fog: 0.02 },
+  // Full interior — centered, steering wheel + gauges visible, both door panels
+  { t: 0.66, pos: P(0.05, 1.22, -0.3),   look: P(0.15, 1.08, 0.4), fov: 50, bodyOpacity: 0, wheelFocus: 0, interiorFocus: 1, carbonFocus: 0, headlight: 0, fog: 0.02 },
+  // Driver's eye — closer to steering wheel, gauges glow
+  { t: 0.675, pos: P(0.2, 1.18, -0.2),  look: P(0.35, 1.12, 0.45), fov: 46, bodyOpacity: 0, wheelFocus: 0, interiorFocus: 1, carbonFocus: 0, headlight: 0, fog: 0.02 },
+  // Pan to center dash — infotainment screen, shifter, passenger dash
+  { t: 0.69, pos: P(0, 1.15, -0.15),     look: P(0.1, 1.05, 0.5), fov: 44, bodyOpacity: 0, wheelFocus: 0, interiorFocus: 1, carbonFocus: 0, headlight: 0, fog: 0.02 },
 
   // 07 SPECIFICATIONS — return to a clean, confident 3/4 hero shot
   { t: 0.72, pos: P(4.2, 1.3, 3.6), look: P(0, 0.7, 0), fov: 32, bodyOpacity: 0.6, wheelFocus: 0, interiorFocus: 0, carbonFocus: 0, headlight: 0.5, fog: 0.1 },

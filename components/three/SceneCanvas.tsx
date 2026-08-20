@@ -12,6 +12,8 @@ import VehicleModel from "./VehicleModel";
 import WheelAssembly from "./WheelAssembly";
 import CarbonSurface from "./CarbonSurface";
 import InteriorSound from "./InteriorSound";
+import ScrollSound from "./ScrollSound";
+import MirrorReflection from "./MirrorReflection";
 
 /**
  * The single persistent, fixed-position R3F canvas behind every scene.
@@ -46,6 +48,8 @@ export default function SceneCanvas() {
             <WheelAssembly />
             <CarbonSurface />
             <InteriorSound />
+            <ScrollSound />
+            <MirrorReflection />
           </Suspense>
           <CameraRig />
         </ChoreographyProvider>

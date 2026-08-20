@@ -7,6 +7,8 @@ import Sidebar from "@/components/sidebar/Sidebar";
 import RightProgress from "@/components/progress/RightProgress";
 import MobileProgress from "@/components/progress/MobileProgress";
 import Footer from "@/components/ui/Footer";
+import ColorPicker from "@/components/ui/ColorPicker";
+import EngineStart from "@/components/ui/EngineStart";
 import RevealScene from "@/components/scenes/RevealScene";
 import HeroScene from "@/components/scenes/HeroScene";
 import PowerScene from "@/components/scenes/PowerScene";
@@ -32,6 +34,8 @@ export default function Experience() {
       <Sidebar />
       <RightProgress />
       <MobileProgress />
+      <ColorPicker />
+      <EngineStart />
 
       <main className="relative z-10 md:pl-[172px] lg:pl-[212px]">
         <RevealScene />
